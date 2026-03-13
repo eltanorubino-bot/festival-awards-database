@@ -199,17 +199,38 @@
     .fest-tab:has(.c-venice):hover { border-color: var(--venice); background: rgba(192, 57, 43, 0.1); }
     .fest-tab:has(.c-berlin):hover { border-color: var(--berlin); background: rgba(142, 68, 173, 0.1); }
 
-    .awards-container { max-width: 1400px; margin: 0 auto; }
+    .section-hdr h3 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .section-hdr h3 .logo-img,
+    .section-hdr h3 .fest-logo-svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    .awards-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 30px;
+    }
 
     .award-row {
-      margin-bottom: 50px;
       animation: fadeIn 0.6s ease;
+      background: var(--card);
+      border-radius: 8px;
+      padding: 20px;
     }
 
     .award-title {
       font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      margin-bottom: 15px;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--muted);
       color: var(--text);
@@ -217,11 +238,9 @@
 
     .carousel {
       display: flex;
-      gap: 15px;
-      overflow-x: auto;
-      padding: 10px 0;
-      scroll-behavior: smooth;
-      scroll-snap-type: x mandatory;
+      flex-direction: column;
+      gap: 12px;
+      padding: 5px 0;
     }
 
     .carousel::-webkit-scrollbar { height: 6px; }
@@ -230,50 +249,59 @@
     .carousel::-webkit-scrollbar-thumb:hover { background: var(--text); }
 
     .film-card {
-      flex: 0 0 160px;
-      scroll-snap-align: start;
+      display: flex;
+      gap: 12px;
       cursor: pointer;
       transition: all 0.3s;
       border-radius: 6px;
       overflow: hidden;
-      background: var(--card);
-      aspect-ratio: 2/3;
+      background: rgba(255,255,255,0.03);
+      padding: 8px;
       position: relative;
     }
 
-    @media (max-width: 768px) {
-      .film-card { flex: 0 0 130px; }
+    .film-card:hover {
+      background: rgba(255,255,255,0.08);
+      transform: none;
     }
 
     .film-poster {
-      width: 100%;
-      height: 100%;
+      width: 60px;
+      height: 90px;
       object-fit: cover;
       object-position: center;
+      border-radius: 4px;
+      flex-shrink: 0;
     }
 
     .film-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 15px;
-      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-      color: var(--text);
-      opacity: 0;
-      transition: opacity 0.3s;
+      display: none;
+    }
+
+    .film-info {
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
-      height: 100%;
+      justify-content: center;
+      min-width: 0;
     }
 
-    .film-card:hover {
-      transform: scale(1.05);
+    .film-info .winner-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
     }
 
-    .film-card:hover .film-overlay {
-      opacity: 1;
+    .film-info .film-title {
+      font-size: 0.85rem;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .film-info .film-director {
+      font-size: 0.75rem;
+      color: var(--muted);
     }
 
     .film-title {
@@ -561,7 +589,7 @@ function renderAwards(app){
     <div class="fest-section">
       <button class="back-btn" onclick="goBack('festivals')">← ${y} · Festivals</button>
       <div class="section-hdr">
-        <h3>${festNames[f]} ${y}</h3>
+        <h3>${festLogos[f]} ${festNames[f]} ${y}</h3>
         <div class="year-title">${Object.keys(grouped).length} categories</div>
       </div>
       <div class="awards-container">
@@ -569,15 +597,20 @@ function renderAwards(app){
           <div class="award-row">
             <div class="award-title" style="border-bottom-color: var(--${f})">${award}</div>
             <div class="carousel">
-              ${grouped[award].map(film=>`
-                <div class="film-card" onclick="openModal('${film.title}', '${y}', '${f}')">
-                  ${film.poster ? `<img src="${film.poster}" alt="${film.title}" class="film-poster" onerror="this.parentElement.innerHTML='<div class=&quot;no-poster&quot;>No poster</div>'">` : `<div class="no-poster">${film.title}</div>`}
-                  <div class="film-overlay">
+              ${grouped[award].map(film=>{
+                const personalAwards = ['Mejor Actor','Mejor Actriz','Mejor Director','Mejor Interpretación','Mejor Interpretación Secundaria'];
+                const isPersonal = personalAwards.includes(award);
+                const winnerName = isPersonal ? (film.cast || film.director) : '';
+                return `
+                <div class="film-card" onclick="openModal('${film.title.replace(/'/g,"\\'")}', '${y}', '${f}')">
+                  ${film.poster ? `<img src="${film.poster}" alt="${film.title}" class="film-poster" onerror="this.style.display='none'">` : ''}
+                  <div class="film-info">
+                    ${isPersonal && winnerName ? `<div class="winner-name">${winnerName}</div>` : ''}
                     <div class="film-title">${film.title}</div>
-                    <div class="film-director">${film.director}</div>
+                    <div class="film-director">${isPersonal ? '' : film.director}</div>
                   </div>
-                </div>
-              `).join('')}
+                </div>`;
+              }).join('')}
             </div>
           </div>
         `).join('')}
