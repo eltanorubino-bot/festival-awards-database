@@ -506,6 +506,99 @@
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
+
+    /* ── Mobile Responsive ── */
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+
+      header h1 {
+        font-size: 2rem;
+        letter-spacing: -1px;
+        line-height: 1.1;
+      }
+
+      header h1 span {
+        display: block;
+        font-size: 0.7em !important;
+        margin-top: 4px;
+      }
+
+      .search-bar { margin: 20px 0; }
+      .search-bar input {
+        font-size: 0.95rem;
+        padding: 12px 14px;
+      }
+
+      .year-grid h2 {
+        font-size: 1.6rem;
+        margin-bottom: 16px;
+      }
+
+      .years {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .yr-btn {
+        padding: 12px 6px;
+        font-size: 0.95rem;
+      }
+
+      .section-hdr h3 {
+        font-size: 1.5rem;
+      }
+
+      .fest-tabs {
+        gap: 10px;
+      }
+
+      .fest-tab {
+        flex: 1 1 calc(33.33% - 10px);
+        min-width: 0;
+        padding: 14px 8px;
+      }
+
+      .ft-name {
+        font-size: 0.75rem;
+        letter-spacing: 0;
+      }
+
+      .ft-count { font-size: 0.7rem; }
+
+      .logo-img {
+        width: 30px;
+        height: 30px;
+      }
+
+      .back-btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+      }
+
+      .award-row { padding: 14px; }
+
+      .award-title {
+        font-size: 0.95rem;
+        letter-spacing: 0;
+      }
+
+      .film-card { padding: 6px; gap: 10px; }
+
+      .film-poster {
+        width: 70px;
+        height: 105px;
+      }
+
+      .film-info h4 { font-size: 0.9rem; }
+      .film-info p { font-size: 0.8rem; }
+
+      .modal-content {
+        padding: 16px;
+        width: 96%;
+      }
+
+      .modal-title { font-size: 1.3rem; }
+    }
   </style>
 </head>
 <body>
