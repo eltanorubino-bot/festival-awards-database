@@ -177,6 +177,40 @@
       margin-top: 5px;
     }
 
+    .year-scroller {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 12px 0;
+      margin-bottom: 20px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .year-scroller::-webkit-scrollbar { display: none; }
+
+    .year-scroller .ys-btn {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      background: transparent;
+      border: 1px solid #333;
+      color: var(--muted);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .year-scroller .ys-btn:hover {
+      border-color: #666;
+      color: var(--text);
+    }
+    .year-scroller .ys-btn.active {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+
     .fest-tabs {
       display: flex;
       gap: 20px;
@@ -515,6 +549,11 @@
     @media (max-width: 600px) {
       body { padding: 12px; }
 
+      .year-scroller .ys-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
       header h1 {
         font-size: 2rem;
         letter-spacing: -1px;
@@ -664,7 +703,7 @@ function render(){
   const q = state.search.toLowerCase();
   if(q) renderSearch(app, q);
   else if(state.view==='years') renderYears(app);
-  else if(state.view==='festivals') renderFestivals(app);
+  else if(state.view==='festivals') { renderFestivals(app); setTimeout(scrollToActiveYear, 0); }
   else if(state.view==='awards') renderAwards(app);
   updateStats();
 }
@@ -689,12 +728,29 @@ function renderYears(app){
     </div>`;
 }
 
+function renderYearScroller(currentYear) {
+  const years = Object.keys(DATA).sort((a,b)=>b-a);
+  return `<div class="year-scroller" id="yearScroller">
+    ${years.map(yr => `<button class="ys-btn ${yr===currentYear?'active':''}" onclick="state.year='${yr}';state.festival=null;render()">${yr}</button>`).join('')}
+  </div>`;
+}
+
+function scrollToActiveYear() {
+  const scroller = document.getElementById('yearScroller');
+  if (!scroller) return;
+  const active = scroller.querySelector('.ys-btn.active');
+  if (active) {
+    active.scrollIntoView({inline:'center', block:'nearest', behavior:'instant'});
+  }
+}
+
 function renderFestivals(app){
   const y = state.year;
   const fests = DATA[y];
   app.innerHTML = `
     <div class="fest-section">
       <button class="back-btn" onclick="goBack('years')">← All Years</button>
+      ${renderYearScroller(y)}
       <div class="section-hdr">
         <h3>Festivals ${y}</h3>
         <div class="year-title">${y}</div>
