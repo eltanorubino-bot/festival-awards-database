@@ -177,16 +177,50 @@
       margin-top: 5px;
     }
 
+    .year-scroller-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
     .year-scroller {
       display: flex;
       gap: 6px;
       overflow-x: auto;
-      padding: 12px 0;
-      margin-bottom: 20px;
+      padding: 12px 36px;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      scroll-behavior: smooth;
     }
     .year-scroller::-webkit-scrollbar { display: none; }
+
+    .ys-arrow {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 32px;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.4rem;
+      cursor: pointer;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    .ys-arrow:hover { opacity: 1; }
+    .ys-arrow.left {
+      left: 0;
+      background: linear-gradient(to right, var(--bg) 60%, transparent);
+      padding-right: 8px;
+    }
+    .ys-arrow.right {
+      right: 0;
+      background: linear-gradient(to left, var(--bg) 60%, transparent);
+      padding-left: 8px;
+    }
 
     .year-scroller .ys-btn {
       flex-shrink: 0;
@@ -553,6 +587,8 @@
         padding: 6px 10px;
         font-size: 0.8rem;
       }
+      .ys-arrow { width: 28px; font-size: 1.2rem; }
+      .year-scroller { padding: 10px 28px; }
 
       header h1 {
         font-size: 2rem;
@@ -730,9 +766,18 @@ function renderYears(app){
 
 function renderYearScroller(currentYear) {
   const years = Object.keys(DATA).sort((a,b)=>b-a);
-  return `<div class="year-scroller" id="yearScroller">
-    ${years.map(yr => `<button class="ys-btn ${yr===currentYear?'active':''}" onclick="state.year='${yr}';state.festival=null;render()">${yr}</button>`).join('')}
+  return `<div class="year-scroller-wrap">
+    <button class="ys-arrow left" onclick="scrollYears(-1)">&#8249;</button>
+    <div class="year-scroller" id="yearScroller">
+      ${years.map(yr => `<button class="ys-btn ${yr===currentYear?'active':''}" onclick="state.year='${yr}';state.festival=null;render()">${yr}</button>`).join('')}
+    </div>
+    <button class="ys-arrow right" onclick="scrollYears(1)">&#8250;</button>
   </div>`;
+}
+
+function scrollYears(dir) {
+  const scroller = document.getElementById('yearScroller');
+  if (scroller) scroller.scrollBy({ left: dir * 300, behavior: 'smooth' });
 }
 
 function scrollToActiveYear() {
