@@ -123,6 +123,21 @@
       text-transform: uppercase;
       color: rgba(255,255,255,0.3);
     }
+    .stats-bar .stat-link {
+      cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .stats-bar .stat-link:hover {
+      color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.05);
+      transform: translateY(-1px);
+    }
+    .stats-bar .stat-link.active {
+      color: #d4af37;
+      background: rgba(212,175,55,0.1);
+    }
 
     /* ═══ YEAR GRID (home) ═══ */
     .year-grid { animation: fadeIn 0.6s ease; }
@@ -178,6 +193,7 @@
     .dot-t { background: var(--toronto); }
     .dot-s { background: var(--sansebastian); }
     .dot-o { background: var(--oscar); }
+    .dot-m { background: var(--mardelplata); }
 
     /* ═══ YEAR SCROLLER (horizontal) ═══ */
     .year-scroller-wrap {
@@ -983,8 +999,22 @@ document.getElementById('searchInput').addEventListener('input', function(e){
 function updateStats(){
   let totalFilms = 0;
   Object.values(DATA).forEach(y => Object.values(y).forEach(f => totalFilms += f.length));
+  const festCount = Object.keys(festNames).length;
   const bar = document.getElementById('statsBar');
-  bar.innerHTML = `<span>📽️ <strong>${totalFilms}</strong> Films</span><span>📅 <strong>${Object.keys(DATA).length}</strong> Years</span><span>🎬 <strong>4</strong> Festivals</span>`;
+  const v = state.view;
+  bar.innerHTML = `<span class="stat-link ${v==='allfilms'?'active':''}" onclick="showAllFilms()">📽️ <strong>${totalFilms}</strong> Films</span><span class="stat-link ${v==='years'?'active':''}" onclick="goBack('years')">📅 <strong>${Object.keys(DATA).length}</strong> Years</span><span class="stat-link ${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">🎬 <strong>${festCount}</strong> Festivals</span>`;
+}
+
+function showAllFilms(){
+  state.view='allfilms'; state.year=null; state.festival=null; state.person=null; state.search='';
+  document.getElementById('searchInput').value='';
+  render();
+}
+
+function showAllFestivals(){
+  state.view='allfestivals'; state.year=null; state.festival=null; state.person=null; state.search='';
+  document.getElementById('searchInput').value='';
+  render();
 }
 
 function goBack(to){
@@ -997,6 +1027,8 @@ function render(){
   const app = document.getElementById('app');
   const q = state.search.toLowerCase();
   if(q) renderSearch(app, q);
+  else if(state.view==='allfilms') renderAllFilms(app);
+  else if(state.view==='allfestivals') renderAllFestivals(app);
   else if(state.view==='years') renderYears(app);
   else if(state.view==='festivals') { renderFestivals(app); setTimeout(scrollToActiveYear, 0); }
   else if(state.view==='awards') renderAwards(app);
@@ -1073,6 +1105,119 @@ function renderPerson(app) {
     </div>`;
 }
 
+function renderAllFilms(app){
+  const allFilms = [];
+  Object.entries(DATA).forEach(([yr, fests]) => {
+    Object.entries(fests).forEach(([f, awards]) => {
+      awards.forEach(a => {
+        allFilms.push({...a, year:yr, fest:f});
+      });
+    });
+  });
+  allFilms.sort((a,b) => a.title.localeCompare(b.title, 'es'));
+  const letters = {};
+  allFilms.forEach(f => {
+    const l = f.title[0].toUpperCase();
+    if (!letters[l]) letters[l] = [];
+    letters[l].push(f);
+  });
+  const sortedLetters = Object.keys(letters).sort((a,b) => a.localeCompare(b, 'es'));
+  app.innerHTML = `
+    <div class="fest-section">
+      <button class="back-btn" onclick="goBack('years')">← All Years</button>
+      <div style="font-size:0.65rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:8px;">
+        All Films — ${allFilms.length} total (alphabetical)
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;">
+        ${sortedLetters.map(l => `<span onclick="document.getElementById('letter-${l}').scrollIntoView({behavior:'smooth',block:'start'})" style="cursor:pointer;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.75rem;font-weight:700;transition:all 0.2s;" onmouseover="this.style.background='rgba(212,175,55,0.15)';this.style.color='#d4af37'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.5)'">${l}</span>`).join('')}
+      </div>
+      ${sortedLetters.map(l => `
+        <div id="letter-${l}" style="font-size:1.4rem;font-weight:900;color:#d4af37;margin:20px 0 10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">${l}</div>
+        <div class="search-results">
+          ${letters[l].map(r => `
+            <div class="search-result-card" onclick="state.year='${r.year}';state.festival='${r.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${r.year}']['${r.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(r.title)}'));if(idx>=0)openModal(idx,'${r.year}','${r.fest}')},100)">
+              <div class="sr-poster">${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.7rem">🎬</div>'}</div>
+              <div class="sr-info">
+                <div class="sr-title">${r.title}</div>
+                <div class="sr-director">${r.director}</div>
+                <div class="sr-meta">
+                  <span class="sr-tag ${r.fest}">${festNames[r.fest]}</span>
+                  <span class="sr-tag year">${r.year}</span>
+                  <span class="sr-award">${r.award}</span>
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderAllFestivals(app){
+  const fKeys = Object.keys(festNames);
+  const festStats = {};
+  fKeys.forEach(f => { festStats[f] = {total:0, years:0}; });
+  Object.entries(DATA).forEach(([yr, fests]) => {
+    fKeys.forEach(f => {
+      if (fests[f] && fests[f].length > 0) {
+        festStats[f].total += fests[f].length;
+        festStats[f].years++;
+      }
+    });
+  });
+  app.innerHTML = `
+    <div class="fest-section">
+      <button class="back-btn" onclick="goBack('years')">← All Years</button>
+      <div style="font-size:0.65rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:16px;">
+        All Festivals — ${fKeys.length} total
+      </div>
+      <div class="fest-tabs">
+        ${fKeys.map(f => `
+          <div class="fest-tab" style="min-height:120px;" onclick="showFestivalAllYears('${f}')">
+            <div class="fest-glow"></div>
+            <div class="ft-icon">${festLogos[f]||''}</div>
+            <div class="ft-name c-${f}">${festNames[f]}</div>
+            <div class="ft-count">${festStats[f].total} awards</div>
+            <div style="font-size:0.6rem;color:rgba(255,255,255,0.3);margin-top:2px;">${festStats[f].years} years</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function showFestivalAllYears(fest){
+  const allAwards = [];
+  Object.entries(DATA).forEach(([yr, fests]) => {
+    if (fests[fest]) {
+      fests[fest].forEach(a => allAwards.push({...a, year:yr, fest:fest}));
+    }
+  });
+  allAwards.sort((a,b) => b.year - a.year);
+  state.view = 'festhistory';
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="fest-section">
+      <button class="back-btn" onclick="showAllFestivals()">← All Festivals</button>
+      <div class="section-hdr">
+        <h3>${festLogos[fest]||''} ${festNames[fest]}</h3>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);">${allAwards.length} awards across all years</div>
+      </div>
+      <div class="search-results">
+        ${allAwards.map(r => `
+          <div class="search-result-card" onclick="state.year='${r.year}';state.festival='${r.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${r.year}']['${r.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(r.title)}'));if(idx>=0)openModal(idx,'${r.year}','${r.fest}')},100)">
+            <div class="sr-poster">${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.7rem">🎬</div>'}</div>
+            <div class="sr-info">
+              <div class="sr-title">${r.title}</div>
+              <div class="sr-director">${r.director}</div>
+              <div class="sr-meta">
+                <span class="sr-tag ${r.fest}">${festNames[r.fest]}</span>
+                <span class="sr-tag year">${r.year}</span>
+                <span class="sr-award">${r.award}</span>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  updateStats();
+}
+
 function renderYears(app){
   const years = Object.keys(DATA).sort((a,b)=>b-a);
   app.innerHTML = `
@@ -1088,6 +1233,7 @@ function renderYears(app){
             ${DATA[yr].toronto ? '<div class="dot dot-t"></div>' : ''}
             ${DATA[yr].sansebastian ? '<div class="dot dot-s"></div>' : ''}
             ${DATA[yr].oscar ? '<div class="dot dot-o"></div>' : ''}
+            ${DATA[yr].mardelplata && DATA[yr].mardelplata.length ? '<div class="dot dot-m"></div>' : ''}
           </div>
         </button>`).join('')}
       </div>
