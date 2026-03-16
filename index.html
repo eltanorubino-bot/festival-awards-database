@@ -621,6 +621,33 @@
     
     
     
+    
+    /* ═══ JUSTWATCH LINK ═══ */
+    .jw-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(9,206,163,0.08);
+      border: 1px solid rgba(9,206,163,0.2);
+      border-radius: 8px;
+      color: #09cea3;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s;
+      margin-top: 14px;
+      cursor: pointer;
+    }
+    .jw-btn:hover {
+      background: rgba(9,206,163,0.15);
+      border-color: rgba(9,206,163,0.4);
+      transform: translateY(-1px);
+    }
+    .jw-btn svg {
+      width: 18px; height: 18px;
+    }
+
     /* ═══ PERSON LINKS ═══ */
     .person-link {
       cursor: pointer;
@@ -1139,6 +1166,10 @@ function openModal(titleOrIdx, year, fest){
     ${film.imdbRating ? `<div class="imdb-badge" style="margin-bottom:14px"><span class="imdb-logo">IMDb</span> ${film.imdbRating}/10</div>` : ''}
     ${film.synopsis ? `<div class="modal-synopsis">${film.synopsis}</div>` : ''}
     ${film.cast ? `<div style="font-size:0.6rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:6px;">Cast</div><div style="font-size:0.82rem;color:rgba(255,255,255,0.4);line-height:1.5;">${film.cast}</div>` : ''}
+    ${film.title !== '(Sin competición por COVID-19)' ? `<a class="jw-btn" href="https://www.justwatch.com/ar/buscar?q=${encodeURIComponent(film.title)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      ¿Dónde verla? — JustWatch Argentina
+    </a>` : ''}
   `;
   modal.classList.add('show');
 }
