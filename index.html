@@ -1039,8 +1039,16 @@ function render(){
 
 function isActingAward(award) {
   const a = award.toLowerCase();
-  return a.includes('actor') || a.includes('actriz') || a.includes('actri') || 
+  return a.includes('actor') || a.includes('actriz') || a.includes('actri') ||
          a.includes('interpretaci') || a.includes('mastroianni');
+}
+function getActorName(entry) {
+  if (entry.cast && entry.cast.length > 1 && (!entry.director || entry.director.length < 2)) return entry.cast;
+  return entry.director;
+}
+function getDirectorName(entry) {
+  if (entry.cast && entry.cast.length > 1 && (!entry.director || entry.director.length < 2)) return entry.director || '';
+  return entry.director;
 }
 
 function searchPerson(name) {
@@ -1090,8 +1098,8 @@ function renderPerson(app) {
           <div class="person-card" onclick="state.year='${r.year}';state.festival='${r.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${r.year}']['${r.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(r.title)}'));if(idx>=0)openModal(idx,'${r.year}','${r.fest}')},100)">
             <div class="pc-poster">${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0.15">🎬</div>'}</div>
             <div class="pc-info">
-              <div class="pc-title">${r.title}</div>
-              <div class="pc-detail">${isActingAward(r.award) ? r.title : r.director} · ${r.country||''}</div>
+              <div class="pc-title">${isActingAward(r.award) ? getActorName(r)+' — '+r.title : r.title}</div>
+              <div class="pc-detail">${isActingAward(r.award) ? (r.country||'') : r.director+' · '+(r.country||'')}</div>
               <div class="pc-detail">${r.award}</div>
               <div class="pc-tags">
                 <span class="pc-tag" style="color:var(--${r.fest})">${festNames[r.fest]}</span>
@@ -1138,12 +1146,13 @@ function renderAllFilms(app){
             <div class="search-result-card" onclick="state.year='${r.year}';state.festival='${r.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${r.year}']['${r.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(r.title)}'));if(idx>=0)openModal(idx,'${r.year}','${r.fest}')},100)">
               <div class="sr-poster">${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.7rem">🎬</div>'}</div>
               <div class="sr-info">
-                <div class="sr-title">${r.title}</div>
-                <div class="sr-director">${r.director}</div>
+                <div class="sr-title">${isActingAward(r.award) ? getActorName(r) : r.title}</div>
+                <div class="sr-director">${isActingAward(r.award) ? r.title : r.director}</div>
                 <div class="sr-meta">
                   <span class="sr-tag ${r.fest}">${festNames[r.fest]}</span>
                   <span class="sr-tag year">${r.year}</span>
                   <span class="sr-award">${r.award}</span>
+                  ${r.imdbRating ? '<span style="color:#f5c518;font-weight:700">⭐ '+r.imdbRating+'</span>' : ''}
                 </div>
               </div>
             </div>`).join('')}
@@ -1204,12 +1213,13 @@ function showFestivalAllYears(fest){
           <div class="search-result-card" onclick="state.year='${r.year}';state.festival='${r.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${r.year}']['${r.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(r.title)}'));if(idx>=0)openModal(idx,'${r.year}','${r.fest}')},100)">
             <div class="sr-poster">${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.7rem">🎬</div>'}</div>
             <div class="sr-info">
-              <div class="sr-title">${r.title}</div>
-              <div class="sr-director">${r.director}</div>
+              <div class="sr-title">${isActingAward(r.award) ? getActorName(r) : r.title}</div>
+              <div class="sr-director">${isActingAward(r.award) ? r.title : r.director}</div>
               <div class="sr-meta">
                 <span class="sr-tag ${r.fest}">${festNames[r.fest]}</span>
                 <span class="sr-tag year">${r.year}</span>
                 <span class="sr-award">${r.award}</span>
+                ${r.imdbRating ? '<span style="color:#f5c518;font-weight:700">⭐ '+r.imdbRating+'</span>' : ''}
               </div>
             </div>
           </div>`).join('')}
@@ -1312,7 +1322,7 @@ function renderAwards(app){
                   : `<div class="film-poster no-poster-card" style="background:linear-gradient(135deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px"><div style="font-size:2rem;opacity:0.25">🎬</div><div style="font-size:0.6rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.15">No Poster</div></div>`}
                 <div class="film-info">
                   ${isActingAward(a.award)
-                    ? `<div class="winner-name person-link" onclick="event.stopPropagation();searchPerson(decodeURIComponent('${encodeURIComponent(a.director)}'))">${a.director}</div>
+                    ? `<div class="winner-name person-link" onclick="event.stopPropagation();searchPerson(decodeURIComponent('${encodeURIComponent(getActorName(a))}'))">${getActorName(a)}</div>
                        <div class="film-director">${a.title}</div>`
                     : `<div class="winner-name">${a.title}</div>
                        <div class="film-director person-link" onclick="event.stopPropagation();searchPerson(decodeURIComponent('${encodeURIComponent(a.director)}'))">${a.director}</div>`}
@@ -1346,12 +1356,13 @@ function renderSearch(app, q){
           <div class="search-result-card" onclick="state.search='';document.getElementById('searchInput').value='';state.year='${r.year}';state.festival='${r.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${r.year}']['${r.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(r.title)}'));if(idx>=0)openModal(idx,'${r.year}','${r.fest}')},100)">
             <div class="sr-poster">${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.7rem">🎬</div>'}</div>
             <div class="sr-info">
-              <div class="sr-title">${r.title}</div>
-              <div class="sr-director">${r.director}</div>
+              <div class="sr-title">${isActingAward(r.award) ? getActorName(r) : r.title}</div>
+              <div class="sr-director">${isActingAward(r.award) ? r.title : r.director}</div>
               <div class="sr-meta">
                 <span class="sr-tag ${r.fest}">${festNames[r.fest]}</span>
                 <span class="sr-tag year">${r.year}</span>
                 <span class="sr-award">${r.award}</span>
+                ${r.imdbRating ? '<span style="color:#f5c518;font-weight:700">⭐ '+r.imdbRating+'</span>' : ''}
               </div>
             </div>
           </div>`).join('')}
@@ -1375,7 +1386,7 @@ function openModal(titleOrIdx, year, fest){
     ${film.actor_photo ? `<img src="${film.actor_photo}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid rgba(255,255,255,0.1);margin-bottom:12px;display:block;">` : ''}
     <div class="modal-award ${fest}">🏆 ${film.award}</div>
     ${isActingAward(film.award)
-      ? `<div class="modal-title person-link" onclick="closeModal();searchPerson(decodeURIComponent('${encodeURIComponent(film.director)}'))">${film.director}</div>
+      ? `<div class="modal-title person-link" onclick="closeModal();searchPerson(decodeURIComponent('${encodeURIComponent(getActorName(film))}'))">${getActorName(film)}</div>
          <div class="modal-meta"><span>🎬 ${film.title}</span>`
       : `<div class="modal-title">${film.title}</div>
          <div class="modal-meta"><span class="person-link" onclick="closeModal();searchPerson(decodeURIComponent('${encodeURIComponent(film.director)}'))">🎬 ${film.director}</span>`}
@@ -1759,11 +1770,11 @@ openModal = function(titleOrIdx, year, fest) {
       localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
     }
     
-    // Re-render every 15 found
-    if (found > 0 && found % 15 === 0) render();
-    
+    // Re-render every 5 found
+    if (found > 0 && found % 5 === 0) render();
+
     // Rate limit
-    await new Promise(r => setTimeout(r, 280));
+    await new Promise(r => setTimeout(r, 250));
   }
   
   // Final save and render
@@ -1875,9 +1886,9 @@ openModal = function(titleOrIdx, year, fest) {
     // Save cache every 20
     if ((i + 1) % 20 === 0) localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
     
-    // Re-render every 25 found
-    if (found > 0 && found % 25 === 0) render();
-    
+    // Re-render every 10 found
+    if (found > 0 && found % 10 === 0) render();
+
     // Rate limit OMDB: 1000/day, go steady
     await new Promise(r => setTimeout(r, 300));
   }
