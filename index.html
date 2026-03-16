@@ -622,6 +622,76 @@
     
     
     
+    
+    /* ═══ STREAMING PLATFORMS ═══ */
+    .streaming-section {
+      margin-top: 16px;
+    }
+    .streaming-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 10px;
+    }
+    .streaming-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .streaming-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .streaming-chip:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+    .streaming-chip img {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+    }
+    .streaming-chip .chip-type {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.4);
+    }
+    .streaming-chip .chip-type.flat { background: rgba(9,206,163,0.12); color: #09cea3; }
+    .streaming-chip .chip-type.rent { background: rgba(245,197,24,0.12); color: #f5c518; }
+    .streaming-chip .chip-type.buy { background: rgba(231,76,60,0.12); color: #e74c3c; }
+    .streaming-loading {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.25);
+      padding: 8px 0;
+    }
+    .jw-credit {
+      font-size: 0.55rem;
+      color: rgba(255,255,255,0.15);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+    .jw-credit a { color: rgba(255,255,255,0.25); text-decoration: none; }
+    .jw-credit a:hover { color: rgba(255,255,255,0.4); }
+
     /* ═══ JUSTWATCH LINK ═══ */
     .jw-btn {
       display: inline-flex;
@@ -1166,10 +1236,11 @@ function openModal(titleOrIdx, year, fest){
     ${film.imdbRating ? `<div class="imdb-badge" style="margin-bottom:14px"><span class="imdb-logo">IMDb</span> ${film.imdbRating}/10</div>` : ''}
     ${film.synopsis ? `<div class="modal-synopsis">${film.synopsis}</div>` : ''}
     ${film.cast ? `<div style="font-size:0.6rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:6px;">Cast</div><div style="font-size:0.82rem;color:rgba(255,255,255,0.4);line-height:1.5;">${film.cast}</div>` : ''}
-    ${film.title !== '(Sin competición por COVID-19)' ? `<a class="jw-btn" href="https://www.justwatch.com/ar/buscar?q=${encodeURIComponent(film.title)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-      ¿Dónde verla? — JustWatch Argentina
-    </a>` : ''}
+    ${film.title !== '(Sin competición por COVID-19)' ? `<div class="streaming-section" id="streaming-${year}-${fest}">
+      <div class="streaming-label">¿Dónde verla en Argentina?</div>
+      <div class="streaming-loading" id="streaming-content">Buscando disponibilidad...</div>
+      <div class="jw-credit">Datos de <a href="https://www.justwatch.com/ar/buscar?q=${encodeURIComponent(film.title)}" target="_blank">JustWatch</a></div>
+    </div>` : ''}
   `;
   modal.classList.add('show');
 }
@@ -1188,6 +1259,220 @@ document.addEventListener('keydown', function(e){
 
 render();
 
+
+
+
+// ═══ JUSTWATCH STREAMING FETCH ═══
+const JW_CACHE_KEY = 'festival_db_jw_v1';
+const jwCache = JSON.parse(localStorage.getItem(JW_CACHE_KEY) || '{}');
+
+const CORS_PROXIES = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url=',
+];
+
+async function fetchWithCorsProxy(url, options) {
+  // Try direct first (might work in some browsers)
+  try {
+    const res = await fetch(url, {...options, signal: AbortSignal.timeout(5000)});
+    if (res.ok) return res;
+  } catch(e) {}
+  
+  // Try proxies
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const proxyUrl = proxy + encodeURIComponent(url);
+      const res = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: options.body,
+        signal: AbortSignal.timeout(8000)
+      });
+      if (res.ok) return res;
+    } catch(e) {}
+  }
+  
+  // Fallback: try posting to proxy differently
+  try {
+    const res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://apis.justwatch.com/graphql'), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: options.body,
+      signal: AbortSignal.timeout(8000)
+    });
+    if (res.ok) return res;
+  } catch(e) {}
+  
+  return null;
+}
+
+async function fetchStreamingInfo(title, year) {
+  const cacheKey = (title + '|' + year).toLowerCase();
+  if (jwCache[cacheKey] !== undefined) return jwCache[cacheKey];
+  
+  const query = `query GetSearchTitles($searchTitlesFilter: TitleFilter!, $country: Country!, $language: Language!, $first: Int!, $filter: OfferFilter!) {
+    popularTitles(country: $country, filter: $searchTitlesFilter, first: $first, sortBy: POPULAR, sortRandomSeed: 0) {
+      edges {
+        node {
+          id
+          objectType
+          content(country: $country, language: $language) {
+            title
+            originalReleaseYear
+            fullPath
+          }
+          offers(country: $country, platform: WEB, filter: $filter) {
+            monetizationType
+            standardWebURL
+            package {
+              packageId
+              clearName
+              icon(profile: S100, format: PNG)
+            }
+          }
+        }
+      }
+    }
+  }`;
+  
+  const variables = {
+    searchTitlesFilter: { searchQuery: title },
+    country: "AR",
+    language: "es",
+    first: 5,
+    filter: { bestOnly: true }
+  };
+  
+  try {
+    const res = await fetchWithCorsProxy('https://apis.justwatch.com/graphql', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ query, variables })
+    });
+    
+    if (!res) throw new Error('No proxy worked');
+    
+    const data = await res.json();
+    const edges = data?.data?.popularTitles?.edges || [];
+    
+    // Find best match
+    let match = null;
+    const titleLower = title.toLowerCase();
+    const yearNum = parseInt(year);
+    
+    for (const edge of edges) {
+      const node = edge.node;
+      const ct = node.content;
+      if (!ct) continue;
+      const nodeTitle = (ct.title || '').toLowerCase();
+      const nodeYear = ct.originalReleaseYear;
+      
+      // Exact title + year match
+      if (nodeTitle === titleLower && Math.abs(nodeYear - yearNum) <= 1) {
+        match = node;
+        break;
+      }
+      // Close title match
+      if ((nodeTitle.includes(titleLower) || titleLower.includes(nodeTitle)) && Math.abs(nodeYear - yearNum) <= 1) {
+        match = node;
+        break;
+      }
+    }
+    
+    // Fallback: first MOVIE result
+    if (!match) {
+      for (const edge of edges) {
+        if (edge.node.objectType === 'MOVIE') {
+          match = edge.node;
+          break;
+        }
+      }
+    }
+    
+    if (match && match.offers && match.offers.length > 0) {
+      // Group by monetization type, deduplicate by package
+      const seen = new Set();
+      const offers = [];
+      for (const o of match.offers) {
+        const key = o.package.packageId + '_' + o.monetizationType;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        offers.push({
+          name: o.package.clearName,
+          icon: o.package.icon ? 'https://images.justwatch.com' + o.package.icon : '',
+          type: o.monetizationType,
+          url: o.standardWebURL || ''
+        });
+      }
+      
+      // Sort: FLATRATE first, then RENT, then BUY
+      const order = {FLATRATE: 0, FREE: 0, ADS: 1, RENT: 2, BUY: 3};
+      offers.sort((a, b) => (order[a.type] || 9) - (order[b.type] || 9));
+      
+      jwCache[cacheKey] = { offers, path: match.content?.fullPath || '' };
+      localStorage.setItem(JW_CACHE_KEY, JSON.stringify(jwCache));
+      return jwCache[cacheKey];
+    }
+    
+    jwCache[cacheKey] = null;
+    localStorage.setItem(JW_CACHE_KEY, JSON.stringify(jwCache));
+    return null;
+    
+  } catch(e) {
+    console.log('[JW] Error:', e.message);
+    return null;
+  }
+}
+
+function renderStreamingOffers(data) {
+  if (!data || !data.offers || data.offers.length === 0) {
+    return '<div style="font-size:0.78rem;color:rgba(255,255,255,0.3);">No disponible en streaming en Argentina actualmente.</div>';
+  }
+  
+  const typeLabels = {FLATRATE: 'Stream', FREE: 'Gratis', ADS: 'Con Ads', RENT: 'Alquilar', BUY: 'Comprar'};
+  const typeClass = {FLATRATE: 'flat', FREE: 'flat', ADS: 'flat', RENT: 'rent', BUY: 'buy'};
+  
+  return '<div class="streaming-list">' + data.offers.map(o => 
+    `<a class="streaming-chip" href="${o.url || '#'}" target="_blank" rel="noopener">
+      ${o.icon ? `<img src="${o.icon}" alt="${o.name}" onerror="this.style.display='none'">` : ''}
+      <span>${o.name}</span>
+      <span class="chip-type ${typeClass[o.type] || ''}">${typeLabels[o.type] || o.type}</span>
+    </a>`
+  ).join('') + '</div>';
+}
+
+// Hook into openModal to fetch streaming data
+const _origOpenModal = openModal;
+openModal = function(titleOrIdx, year, fest) {
+  _origOpenModal(titleOrIdx, year, fest);
+  
+  // Get the film title
+  const awards = DATA[year][fest];
+  let film;
+  if (typeof titleOrIdx === 'number') {
+    film = awards[titleOrIdx];
+  } else {
+    film = awards.find(a => a.title === titleOrIdx);
+  }
+  if (!film || film.title === '(Sin competición por COVID-19)') return;
+  
+  const contentEl = document.getElementById('streaming-content');
+  if (!contentEl) return;
+  
+  // Check cache first
+  const cacheKey = (film.title + '|' + year).toLowerCase();
+  if (jwCache[cacheKey] !== undefined) {
+    contentEl.innerHTML = renderStreamingOffers(jwCache[cacheKey]);
+    return;
+  }
+  
+  // Fetch async
+  contentEl.innerHTML = '<div class="streaming-loading">Buscando en JustWatch Argentina...</div>';
+  fetchStreamingInfo(film.title, year).then(data => {
+    const el = document.getElementById('streaming-content');
+    if (el) el.innerHTML = renderStreamingOffers(data);
+  });
+};
 
 // ═══ AUTO POSTER FETCHER v2 ═══
 (async function autoFetchPosters() {
