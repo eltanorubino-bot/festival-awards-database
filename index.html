@@ -2115,7 +2115,7 @@ function renderPerson(app) {
   
   app.innerHTML = `
     <div class="fest-section">
-      <button class="back-btn" onclick="history.back ? (state.view='years',state.person=null,render()) : render()">← Back</button>
+      <button class="back-btn" onclick="state.view='years';state.person=null;render()">← Home</button>
       <div class="person-header">
         <h2>${name}</h2>
         <div class="person-stats">${results.length} award${results.length!==1?'s':''} · ${festivals.size} festival${festivals.size!==1?'s':''} · ${yearRange}</div>
@@ -2199,6 +2199,9 @@ function renderDirectors(app){
   const sortedLetters = Object.keys(letters).sort((a,b) => a.localeCompare(b, 'es'));
 
   app.innerHTML = `
+    <div class="fest-section" style="margin-bottom:0;padding-bottom:0;">
+      <button class="back-btn" onclick="goBack('years')">← Home</button>
+    </div>
     <div class="search-hero">
       <h1 class="search-title">All <span>Directors</span></h1>
       <p class="search-sub">${directors.length} directors across ${Object.keys(DATA).length} years and 7 festivals</p>
@@ -2269,6 +2272,9 @@ function renderAllFilms(app){
   const sortedLetters = Object.keys(letters).sort((a,b) => a.localeCompare(b, 'es'));
   const uniqueCount = grouped.length;
   app.innerHTML = `
+    <div class="fest-section" style="margin-bottom:0;padding-bottom:0;">
+      <button class="back-btn" onclick="goBack('years')">← Home</button>
+    </div>
     <div class="search-hero">
       <h1 class="search-title">All <span>Films</span></h1>
       <p class="search-sub">${uniqueCount} films across ${Object.keys(DATA).length} years and ${new Set(Object.values(DATA).map(f=>Object.keys(f)).flat()).size} festivals</p>
@@ -2324,7 +2330,7 @@ function renderAllFestivals(app){
   });
   app.innerHTML = `
     <div class="fest-section">
-      <button class="back-btn" onclick="goBack('years')">← All Years</button>
+      <button class="back-btn" onclick="goBack('years')">← Home</button>
       <div style="font-size:0.65rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:16px;">
         All Festivals — ${fKeys.length} total
       </div>
@@ -2353,7 +2359,7 @@ function showFestivalAllYears(fest){
   const app = document.getElementById('app');
   app.innerHTML = `
     <div class="fest-section">
-      <button class="back-btn" onclick="showAllFestivals()">← All Festivals</button>
+      <button class="back-btn" onclick="showAllFestivals()">← Festivals</button>
       <div class="section-hdr">
         <h3><span class="hdr-logo">${festLogos[fest]||''}</span><span>${festNames[fest]}</span></h3>
         <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:6px;">${allAwards.length} awards across all years</div>
@@ -2504,7 +2510,7 @@ function renderFestivals(app){
   const fests = DATA[y];
   app.innerHTML = `
     <div class="fest-section">
-      <button class="back-btn" onclick="goBack('years')">← All Years</button>
+      <button class="back-btn" onclick="goBack('years')">← Home</button>
       ${renderYearScroller(y)}
       <div class="section-hdr">
         <h3>Festivals ${y}</h3>
@@ -2527,6 +2533,9 @@ function renderAwards(app){
   const awards = DATA[y][f];
   const festColor = f;
   app.innerHTML = `
+    <div class="fest-section">
+      <button class="back-btn" onclick="goBack('years')">← Home</button>
+    </div>
     <div class="fest-header" data-name="${festNames[f]}">
       <div class="fest-year-nav">
         ${Object.keys(DATA).sort((a,b)=>b-a).map(yr => `<div class="fy-pill ${yr===y?'active':''}" onclick="state.year='${yr}';state.view='awards';render()">${yr}</div>`).join('')}
@@ -2729,6 +2738,7 @@ function renderSearch(app, q){
   grouped.sort((a,b) => a.title.localeCompare(b.title, 'es'));
   app.innerHTML = `
     <div class="fest-section">
+      <button class="back-btn" onclick="state.search='';document.getElementById('searchInput').value='';goBack('years')">← Home</button>
       <div style="font-size:0.65rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:12px;">
         Search Results — ${grouped.length} films found
       </div>
