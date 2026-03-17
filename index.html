@@ -1675,9 +1675,9 @@
 
     /* ═══ DONATE BUTTON & MODAL ═══ */
     .donate-btn {
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.75rem;
+      padding: 12px 28px;
+      border-radius: 25px;
+      font-size: 1rem;
       font-weight: 700;
       letter-spacing: 1.5px;
       text-transform: uppercase;
@@ -2012,10 +2012,6 @@ function updateStats(){
   bar.innerHTML = `<span class="stat-link ${v==='allfilms'?'active':''}" onclick="showAllFilms()">📽️ <strong>${totalFilms}</strong> Films</span><span class="stat-link ${v==='years'?'active':''}" onclick="goBack('years')">📅 <strong>${Object.keys(DATA).length}</strong> Years</span><span class="stat-link ${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">🎬 <strong>${festCount}</strong> Festivals</span>`;
 
   navLinks.innerHTML = `
-    <a class="${v==='years'?'active':''}" onclick="goBack('years')">Years</a>
-    <a class="${v==='allfilms'?'active':''}" onclick="showAllFilms()">Films</a>
-    <a class="${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">Festivals</a>
-    <a class="${v==='directors'||v==='person'?'active':''}" onclick="state.view='directors';state.person=null;render()">Directors</a>
     <button class="donate-btn" onclick="document.getElementById('donateModal').classList.add('active')">♥ Donate</button>
   `;
 }
@@ -2393,7 +2389,11 @@ function renderYears(app){
   }, 0);
   const totalYears = years.length;
   const festivals = new Set();
-  Object.values(DATA).forEach(fests => Object.keys(fests).forEach(f => festivals.add(f)));
+  const directors = new Set();
+  Object.values(DATA).forEach(fests => {
+    Object.keys(fests).forEach(f => festivals.add(f));
+    Object.values(fests).forEach(awards => awards.forEach(a => { if(a.director && a.director !== '—') directors.add(a.director); }));
+  });
 
   // Move search bar and stats bar between hero and years
   const searchBarEl = document.querySelector('.search-bar');
@@ -2418,6 +2418,10 @@ function renderYears(app){
         <div class="hero-stat" onclick="showAllFestivals()">
           <div class="stat-num" data-count="${festivals.size}">0</div>
           <div class="stat-label">Festivals</div>
+        </div>
+        <div class="hero-stat" onclick="state.view='directors';state.person=null;render()">
+          <div class="stat-num" data-count="${directors.size}">0</div>
+          <div class="stat-label">Directors</div>
         </div>
       </div>
     </div>
