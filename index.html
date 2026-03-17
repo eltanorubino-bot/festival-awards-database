@@ -1605,6 +1605,32 @@
     }
 
     /* ═══ BACK TO TOP BUTTON ═══ */
+    .autocomplete-wrap { position: relative; }
+    .autocomplete-dropdown {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; margin-top: 6px; max-height: 370px; overflow-y: auto;
+      z-index: 8000; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      display: none;
+    }
+    .autocomplete-dropdown.active { display: block; }
+    .ac-section-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.25); padding: 10px 16px 4px;
+    }
+    .ac-item {
+      display: flex; align-items: center; gap: 12px; padding: 8px 16px;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .ac-item:hover, .ac-item.ac-active { background: rgba(255,255,255,0.06); }
+    .ac-item:last-child { border-radius: 0 0 16px 16px; }
+    .ac-poster { width: 32px; height: 48px; border-radius: 4px; object-fit: cover; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+    .ac-poster-placeholder { width: 32px; height: 48px; border-radius: 4px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
+    .ac-info { flex: 1; min-width: 0; }
+    .ac-title { font-size: 0.85rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ac-sub { font-size: 0.7rem; color: rgba(255,255,255,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ac-icon { font-size: 0.9rem; flex-shrink: 0; }
+
     .back-to-top {
       position: fixed;
       bottom: 32px;
@@ -1860,8 +1886,9 @@
     <div style="display:flex;gap:32px;align-items:center;" id="navLinks"></div>
   </nav>
 
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search films, directors, awards...">
+  <div class="search-bar autocomplete-wrap">
+    <input type="text" id="searchInput" placeholder="Search films, directors, awards..." autocomplete="off">
+    <div class="autocomplete-dropdown" id="globalAcDropdown"></div>
   </div>
 
   <div class="stats-bar" id="statsBar"></div>
@@ -1918,12 +1945,31 @@ const festLogos = {
 
 const state = { view: 'years', year: null, festival: null, search: '', person: null };
 
-document.getElementById('searchInput').addEventListener('input', function(e){
-  state.search = e.target.value;
-  if(state.search) { state.view='search'; }
-  else { state.view='years'; state.year=null; state.festival=null; }
-  render();
+// Global search: autocomplete on typing, full search on Enter
+document.getElementById('searchInput').addEventListener('keydown', function(e){
+  const dropdown = document.getElementById('globalAcDropdown');
+  if (e.key === 'Enter' && !dropdown.querySelector('.ac-active')) {
+    state.search = this.value;
+    if(state.search) { state.view='search'; }
+    else { state.view='years'; state.year=null; state.festival=null; }
+    dropdown.classList.remove('active');
+    render();
+  }
 });
+// Clear search when input is emptied
+document.getElementById('searchInput').addEventListener('input', function(e){
+  if (!this.value) {
+    state.search = '';
+    state.view='years'; state.year=null; state.festival=null;
+    render();
+  }
+});
+
+// Setup global search autocomplete
+setupAutocomplete(
+  document.getElementById('searchInput'),
+  document.getElementById('globalAcDropdown')
+);
 
 // Back to top button visibility
 window.addEventListener('scroll', function() {
@@ -2357,10 +2403,11 @@ function renderYears(app){
       </div>
     </div>
 
-    <div class="home-search-bar" style="margin-bottom:16px;">
-      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:30px;overflow:hidden;max-width:100%;">
-        <input type="text" id="homeSearchInput" placeholder="Search films, directors, awards..." style="width:100%;padding:14px 24px;background:transparent;border:none;outline:none;color:#fff;font-size:0.95rem;font-family:inherit;">
+    <div class="home-search-bar autocomplete-wrap" style="margin-bottom:16px;">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:30px;overflow:hidden;max-width:100%;position:relative;">
+        <input type="text" id="homeSearchInput" placeholder="Search films, directors, awards..." autocomplete="off" style="width:100%;padding:14px 24px;background:transparent;border:none;outline:none;color:#fff;font-size:0.95rem;font-family:inherit;">
       </div>
+      <div class="autocomplete-dropdown" id="homeAcDropdown"></div>
     </div>
 
     <div class="home-stats-bar" style="display:flex;gap:28px;padding:14px 0;margin-bottom:18px;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.82rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);" id="homeStatsBar"></div>
@@ -2391,12 +2438,20 @@ function renderYears(app){
   // Wire up home search input
   setTimeout(() => {
     const homeSearch = document.getElementById('homeSearchInput');
+    const homeAcDrop = document.getElementById('homeAcDropdown');
     if (homeSearch) {
-      homeSearch.addEventListener('input', function(e) {
-        document.getElementById('searchInput').value = e.target.value;
-        state.search = e.target.value;
-        render();
+      // Only trigger full search on Enter, not on every keystroke (to preserve autocomplete dropdown)
+      homeSearch.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !homeAcDrop.querySelector('.ac-active')) {
+          document.getElementById('searchInput').value = this.value;
+          state.search = this.value;
+          if (state.search) { state.view = 'search'; }
+          homeAcDrop.classList.remove('active');
+          render();
+        }
       });
+      // Setup autocomplete on home search
+      if (homeAcDrop) setupAutocomplete(homeSearch, homeAcDrop);
     }
     // Populate home stats bar
     const hsb = document.getElementById('homeStatsBar');
@@ -2494,6 +2549,159 @@ function renderAwards(app){
           </div>`).join('')}
       </div>
     </div>`;
+}
+
+// Autocomplete engine
+function getAutocompleteSuggestions(q) {
+  if (!q || q.length < 2) return { films: [], directors: [], festivals: [] };
+  const ql = q.toLowerCase();
+  const filmMap = new Map();
+  const dirSet = new Map();
+  Object.entries(DATA).forEach(([yr, fests]) => {
+    Object.entries(fests).forEach(([f, awards]) => {
+      awards.forEach(a => {
+        // Films
+        if (a.title && a.title.toLowerCase().includes(ql)) {
+          const key = a.title + '|' + (a.director || '');
+          if (!filmMap.has(key)) filmMap.set(key, { title: a.title, director: a.director, poster: a.poster, year: yr, fest: f, country: a.country });
+        }
+        // Directors
+        if (a.director && a.director.toLowerCase().includes(ql)) {
+          if (!dirSet.has(a.director)) dirSet.set(a.director, { name: a.director, count: 1 });
+          else dirSet.get(a.director).count++;
+        }
+        // Acting awards (search by actor name)
+        if (isActingAward(a.award)) {
+          const actor = getActorName(a);
+          if (actor && actor.toLowerCase().includes(ql) && !dirSet.has(actor)) {
+            dirSet.set(actor, { name: actor, count: 1, isActor: true });
+          } else if (actor && actor.toLowerCase().includes(ql) && dirSet.has(actor)) {
+            dirSet.get(actor).count++;
+          }
+        }
+      });
+    });
+  });
+  // Festival match
+  const festResults = [];
+  Object.entries(festNames).forEach(([k, name]) => {
+    if (name.toLowerCase().includes(ql)) festResults.push({ key: k, name: name });
+  });
+  return {
+    films: Array.from(filmMap.values()).slice(0, 5),
+    directors: Array.from(dirSet.values()).slice(0, 4),
+    festivals: festResults.slice(0, 3)
+  };
+}
+
+function renderAutocompleteDropdown(suggestions, dropdownEl) {
+  const { films, directors, festivals } = suggestions;
+  if (!films.length && !directors.length && !festivals.length) {
+    dropdownEl.classList.remove('active');
+    return;
+  }
+  let html = '';
+  if (films.length) {
+    html += '<div class="ac-section-label">Films</div>';
+    films.forEach(f => {
+      html += `<div class="ac-item" data-type="film" data-title="${f.title.replace(/"/g,'&quot;')}" data-year="${f.year}" data-fest="${f.fest}">
+        ${f.poster ? `<img class="ac-poster" src="${f.poster}" alt="">` : `<div class="ac-poster-placeholder">🎬</div>`}
+        <div class="ac-info">
+          <div class="ac-title">${f.title}</div>
+          <div class="ac-sub">${f.director || ''} · ${f.year} · ${f.country || ''}</div>
+        </div>
+      </div>`;
+    });
+  }
+  if (directors.length) {
+    html += '<div class="ac-section-label">People</div>';
+    directors.forEach(d => {
+      html += `<div class="ac-item" data-type="person" data-name="${d.name.replace(/"/g,'&quot;')}">
+        <div class="ac-icon">${d.isActor ? '🎭' : '🎬'}</div>
+        <div class="ac-info">
+          <div class="ac-title">${d.name}</div>
+          <div class="ac-sub">${d.count} award${d.count > 1 ? 's' : ''}</div>
+        </div>
+      </div>`;
+    });
+  }
+  if (festivals.length) {
+    html += '<div class="ac-section-label">Festivals</div>';
+    festivals.forEach(f => {
+      html += `<div class="ac-item" data-type="festival" data-fest="${f.key}">
+        <div class="ac-icon">🎪</div>
+        <div class="ac-info">
+          <div class="ac-title">${f.name}</div>
+        </div>
+      </div>`;
+    });
+  }
+  dropdownEl.innerHTML = html;
+  dropdownEl.classList.add('active');
+
+  // Click handlers for items
+  dropdownEl.querySelectorAll('.ac-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const type = this.dataset.type;
+      dropdownEl.classList.remove('active');
+      if (type === 'film') {
+        openModal(this.dataset.title, this.dataset.year, this.dataset.fest);
+      } else if (type === 'person') {
+        searchPerson(this.dataset.name);
+      } else if (type === 'festival') {
+        showFestivalAllYears(this.dataset.fest);
+      }
+    });
+  });
+}
+
+function setupAutocomplete(inputEl, dropdownEl) {
+  let debounceTimer;
+  inputEl.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const suggestions = getAutocompleteSuggestions(this.value);
+      renderAutocompleteDropdown(suggestions, dropdownEl);
+    }, 150);
+  });
+  inputEl.addEventListener('focus', function() {
+    if (this.value.length >= 2) {
+      const suggestions = getAutocompleteSuggestions(this.value);
+      renderAutocompleteDropdown(suggestions, dropdownEl);
+    }
+  });
+  // Keyboard navigation
+  inputEl.addEventListener('keydown', function(e) {
+    if (!dropdownEl.classList.contains('active')) return;
+    const items = dropdownEl.querySelectorAll('.ac-item');
+    let activeIdx = -1;
+    items.forEach((it, i) => { if (it.classList.contains('ac-active')) activeIdx = i; });
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items.forEach(it => it.classList.remove('ac-active'));
+      activeIdx = (activeIdx + 1) % items.length;
+      items[activeIdx].classList.add('ac-active');
+      items[activeIdx].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items.forEach(it => it.classList.remove('ac-active'));
+      activeIdx = activeIdx <= 0 ? items.length - 1 : activeIdx - 1;
+      items[activeIdx].classList.add('ac-active');
+      items[activeIdx].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter' && activeIdx >= 0) {
+      e.preventDefault();
+      items[activeIdx].click();
+    } else if (e.key === 'Escape') {
+      dropdownEl.classList.remove('active');
+    }
+  });
+  // Close on click outside
+  document.addEventListener('click', function(e) {
+    if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) {
+      dropdownEl.classList.remove('active');
+    }
+  });
 }
 
 function renderSearch(app, q){
