@@ -108,36 +108,38 @@
       flex-direction: column;
       position: relative;
       z-index: 5;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
     }
     .hero-tag {
-      font-size: 1.6rem;
-      font-weight: 300;
-      color: rgba(255,255,255,0.35);
-      margin-bottom: 4px;
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 6px;
       letter-spacing: 1px;
     }
+    .hero-tag span { color: #d4af37; }
     .hero-title {
-      font-size: 3.2rem;
+      font-size: 4.5rem;
       font-weight: 900;
-      line-height: 1;
-      letter-spacing: -2px;
-      margin-bottom: 12px;
-      max-width: 800px;
+      line-height: 0.95;
+      letter-spacing: -3px;
+      margin-bottom: 10px;
       color: #d4af37;
     }
-    .hero-title span { color: rgba(255,255,255,0.85); }
-    .hero-subtitle {
-      font-size: 0.85rem;
-      font-weight: 300;
+    .hero-title span {
+      display: block;
+      font-size: 0.35em;
+      font-weight: 400;
       color: rgba(255,255,255,0.3);
-      max-width: 500px;
-      line-height: 1.5;
-      margin-bottom: 16px;
+      letter-spacing: 1px;
+      margin-top: 6px;
+    }
+    .hero-subtitle {
+      display: none;
     }
     .hero-stats {
       display: flex;
-      gap: 36px;
+      gap: 32px;
     }
     .hero-stat {
       cursor: pointer;
@@ -145,13 +147,13 @@
     }
     .hero-stat:hover .stat-num { color: #d4af37; }
     .stat-num {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 900;
       letter-spacing: -1px;
       transition: color 0.3s;
     }
     .stat-label {
-      font-size: 0.55rem;
+      font-size: 0.5rem;
       font-weight: 600;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -422,7 +424,7 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
     .award-label {
-      font-size: 0.6rem;
+      font-size: 0.85rem;
       font-weight: 700;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -1674,7 +1676,7 @@
 
 <div class="page-content">
   <nav style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-    <div style="font-size:0.7rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#d4af37;">Festival Awards Database <span style="font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:none;font-size:0.75rem;">by Fer Rubino</span></div>
+    <div style="font-size:0.7rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#d4af37;cursor:pointer;" onclick="goBack('years')">Festival Awards Database <span style="font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:none;font-size:0.75rem;">by Fer Rubino</span></div>
     <div style="display:flex;gap:28px;align-items:center;" id="navLinks"></div>
   </nav>
 
@@ -1733,7 +1735,7 @@ function updateStats(){
     <a class="${v==='years'?'active':''}" onclick="goBack('years')">Years</a>
     <a class="${v==='allfilms'?'active':''}" onclick="showAllFilms()">Films</a>
     <a class="${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">Festivals</a>
-    <a class="${v==='person'?'active':''}" onclick="state.view='person';render()">Directors</a>
+    <a class="${v==='directors'||v==='person'?'active':''}" onclick="state.view='directors';state.person=null;render()">Directors</a>
   `;
 }
 
@@ -1760,6 +1762,7 @@ function render(){
   const q = state.search.toLowerCase();
   if(q) renderSearch(app, q);
   else if(state.view==='allfilms') renderAllFilms(app);
+  else if(state.view==='directors') renderDirectors(app);
   else if(state.view==='allfestivals') renderAllFestivals(app);
   else if(state.view==='years') renderYears(app);
   else if(state.view==='festivals') { renderFestivals(app); setTimeout(scrollToActiveYear, 0); }
@@ -1883,6 +1886,92 @@ function renderGroupedCard(film) {
     </div>
   </div>`;
 }
+function renderDirectors(app){
+  const dirMap = {};
+  Object.entries(DATA).forEach(([yr, fests]) => {
+    Object.entries(fests).forEach(([f, awards]) => {
+      awards.forEach(a => {
+        const name = a.director;
+        if (!name || name === '—' || name === '-') return;
+        if (!dirMap[name]) dirMap[name] = { name, films: [], awards: 0, festivals: new Set(), poster: null };
+        dirMap[name].awards++;
+        dirMap[name].festivals.add(f);
+        if (!dirMap[name].poster && a.poster) dirMap[name].poster = a.poster;
+        const filmKey = a.title + '|' + yr;
+        if (!dirMap[name]._seen) dirMap[name]._seen = new Set();
+        if (!dirMap[name]._seen.has(filmKey)) {
+          dirMap[name]._seen.add(filmKey);
+          dirMap[name].films.push({ title: a.title, year: yr, fest: f, award: a.award, poster: a.poster });
+        } else {
+          const existing = dirMap[name].films.find(fi => fi.title === a.title && fi.year === yr);
+          if (existing) existing.award += ', ' + a.award;
+        }
+      });
+    });
+  });
+  const directors = Object.values(dirMap);
+  directors.forEach(d => { delete d._seen; d.festCount = d.festivals.size; });
+  directors.sort((a,b) => a.name.localeCompare(b.name, 'es'));
+  const letters = {};
+  directors.forEach(d => {
+    const l = d.name[0].toUpperCase();
+    if (!letters[l]) letters[l] = [];
+    letters[l].push(d);
+  });
+  const sortedLetters = Object.keys(letters).sort((a,b) => a.localeCompare(b, 'es'));
+
+  app.innerHTML = `
+    <div class="search-hero">
+      <h1 class="search-title">All <span>Directors</span></h1>
+      <p class="search-sub">${directors.length} directors across ${Object.keys(DATA).length} years and 7 festivals</p>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="dirSearchInput" placeholder="Search directors...">
+      </div>
+    </div>
+
+    <div class="alpha-nav">
+      ${sortedLetters.map(l => `<div class="alpha-pill" onclick="document.getElementById('dir-letter-${l}').scrollIntoView({behavior:'smooth',block:'start'})">${l}</div>`).join('')}
+    </div>
+
+    <div class="film-list" id="directorsList">
+      ${sortedLetters.map(l => `
+        <div class="letter-header" id="dir-letter-${l}">${l}</div>
+        ${letters[l].map(d => `
+          <div class="film-row director-row" onclick="searchPerson('${d.name.replace(/'/g,"\\'")}')">
+            <div class="film-row-poster">${d.poster ? `<img src="${d.poster}" alt="">` : '🎬'}</div>
+            <div class="film-row-info">
+              <div class="film-row-title">${d.name}</div>
+              <div class="film-row-director">${d.awards} award${d.awards!==1?'s':''} · ${d.festCount} festival${d.festCount!==1?'s':''}</div>
+              <div class="film-row-awards">
+                ${d.films.slice(0,5).map(fi => `<span class="award-tag ${fi.fest}">${fi.title}</span><span class="award-tag year-tag">${fi.year}</span>`).join('')}
+                ${d.films.length > 5 ? `<span class="award-tag" style="color:rgba(255,255,255,0.3)">+${d.films.length-5} more</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      `).join('')}
+    </div>`;
+
+  setTimeout(() => {
+    const inp = document.getElementById('dirSearchInput');
+    if (inp) inp.addEventListener('input', function() {
+      const q = this.value.toLowerCase().trim();
+      document.querySelectorAll('.director-row').forEach(row => {
+        const name = row.querySelector('.film-row-title').textContent.toLowerCase();
+        row.style.display = name.includes(q) ? '' : 'none';
+      });
+      document.querySelectorAll('.letter-header').forEach(lh => {
+        const next = [];
+        let sib = lh.nextElementSibling;
+        while (sib && !sib.classList.contains('letter-header')) { next.push(sib); sib = sib.nextElementSibling; }
+        const anyVisible = next.some(n => n.style.display !== 'none');
+        lh.style.display = anyVisible ? '' : 'none';
+      });
+    });
+  }, 100);
+}
+
 function renderAllFilms(app){
   const allFilms = [];
   Object.entries(DATA).forEach(([yr, fests]) => {
@@ -2021,9 +2110,8 @@ function renderYears(app){
 
   app.innerHTML = `
     <div class="hero-section">
-      <div class="hero-tag">Every Award. Every Year.</div>
-      <h1 class="hero-title">Festival Awards <span>Database</span></h1>
-      <p class="hero-subtitle">La base de datos más completa de premios de los principales festivales de cine del mundo.</p>
+      <div class="hero-tag">Every <span>Award.</span> Every <span>Year.</span></div>
+      <h1 class="hero-title">Festival Awards<br>Database<span>La base de datos más completa de premios de los principales festivales de cine del mundo.</span></h1>
       <div class="hero-stats">
         <div class="hero-stat" onclick="state.view='allfilms';render()">
           <div class="stat-num">${totalFilms}</div>
