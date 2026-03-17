@@ -406,25 +406,25 @@
     .awards-container {
       max-width: 1400px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 20px;
     }
     .award-row {
       animation: fadeIn 0.6s ease;
       background: rgba(255,255,255,0.025);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 14px;
-      padding: 18px;
+      padding: 22px;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
     .award-title {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 2px;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
@@ -446,13 +446,13 @@
 
     .film-card {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       cursor: pointer;
       transition: all 0.25s;
-      border-radius: 10px;
+      border-radius: 12px;
       overflow: hidden;
       background: rgba(255,255,255,0.02);
-      padding: 10px;
+      padding: 12px;
       position: relative;
     }
     .film-card:hover {
@@ -460,8 +460,8 @@
       transform: translateY(-1px);
     }
     .film-poster {
-      width: 80px;
-      height: 120px;
+      width: 100px;
+      height: 150px;
       object-fit: cover;
       object-position: center;
       border-radius: 8px;
@@ -476,20 +476,20 @@
       min-width: 0;
     }
     .film-info .winner-name {
-      font-size: 0.95rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
     .film-info .film-title {
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       color: rgba(255,255,255,0.6);
       font-weight: 500;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
     .film-info .film-director {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.3);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.35);
     }
     .no-poster {
       width: 100%; height: 100%;
@@ -956,11 +956,11 @@
       }
       .award-row { padding: 14px; }
 
-      .film-card { padding: 8px; gap: 10px; }
-      .film-poster { width: 65px; height: 98px; }
+      .film-card { padding: 10px; gap: 12px; }
+      .film-poster { width: 80px; height: 120px; }
 
-      .film-info .winner-name { font-size: 0.85rem; }
-      .film-info .film-title { font-size: 0.78rem; }
+      .film-info .winner-name { font-size: 0.95rem; }
+      .film-info .film-title { font-size: 0.82rem; }
 
       .modal-content {
         padding: 20px;
@@ -1167,28 +1167,54 @@ function renderPerson(app) {
     </div>`;
 }
 
+function groupByFilm(entries) {
+  const map = {};
+  entries.forEach(r => {
+    const key = r.title + '|' + (r.year || '');
+    if (!map[key]) map[key] = { ...r, awards: [] };
+    map[key].awards.push({ award: r.award, fest: r.fest, year: r.year });
+    if (!map[key].poster && r.poster) map[key].poster = r.poster;
+  });
+  return Object.values(map);
+}
+function renderGroupedCard(film) {
+  const firstAward = film.awards[0];
+  return `<div class="search-result-card" onclick="state.year='${firstAward.year}';state.festival='${firstAward.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${firstAward.year}']['${firstAward.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(film.title)}'));if(idx>=0)openModal(idx,'${firstAward.year}','${firstAward.fest}')},100)">
+    <div class="sr-poster">${film.poster ? `<img src="${film.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.7rem">🎬</div>'}</div>
+    <div class="sr-info">
+      <div class="sr-title">${film.title}</div>
+      <div class="sr-director">${film.director}</div>
+      ${film.awards.map(aw => `<div class="sr-meta" style="margin-top:4px">
+        <span class="sr-tag ${aw.fest}">${festNames[aw.fest]}</span>
+        <span class="sr-tag year">${aw.year}</span>
+        <span class="sr-award">${aw.award}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
 function renderAllFilms(app){
   const allFilms = [];
   Object.entries(DATA).forEach(([yr, fests]) => {
     Object.entries(fests).forEach(([f, awards]) => {
-      awards.forEach(a => {
-        allFilms.push({...a, year:yr, fest:f});
-      });
+      awards.forEach(a => { allFilms.push({...a, year:yr, fest:f}); });
     });
   });
   allFilms.sort((a,b) => a.title.localeCompare(b.title, 'es'));
+  const grouped = groupByFilm(allFilms);
+  grouped.sort((a,b) => a.title.localeCompare(b.title, 'es'));
   const letters = {};
-  allFilms.forEach(f => {
+  grouped.forEach(f => {
     const l = f.title[0].toUpperCase();
     if (!letters[l]) letters[l] = [];
     letters[l].push(f);
   });
   const sortedLetters = Object.keys(letters).sort((a,b) => a.localeCompare(b, 'es'));
+  const uniqueCount = grouped.length;
   app.innerHTML = `
     <div class="fest-section">
       <button class="back-btn" onclick="goBack('years')">← All Years</button>
       <div style="font-size:0.65rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:8px;">
-        All Films — ${allFilms.length} total (alphabetical)
+        All Films — ${uniqueCount} unique films (alphabetical)
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;">
         ${sortedLetters.map(l => `<span onclick="document.getElementById('letter-${l}').scrollIntoView({behavior:'smooth',block:'start'})" style="cursor:pointer;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.75rem;font-weight:700;transition:all 0.2s;" onmouseover="this.style.background='rgba(212,175,55,0.15)';this.style.color='#d4af37'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.5)'">${l}</span>`).join('')}
@@ -1196,19 +1222,7 @@ function renderAllFilms(app){
       ${sortedLetters.map(l => `
         <div id="letter-${l}" style="font-size:1.4rem;font-weight:900;color:#d4af37;margin:20px 0 10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">${l}</div>
         <div class="search-results">
-          ${letters[l].map(r => `
-            <div class="search-result-card" onclick="state.year='${r.year}';state.festival='${r.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${r.year}']['${r.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(r.title)}'));if(idx>=0)openModal(idx,'${r.year}','${r.fest}')},100)">
-              <div class="sr-poster">${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.7rem">🎬</div>'}</div>
-              <div class="sr-info">
-                <div class="sr-title">${isActingAward(r.award) ? getActorName(r) : r.title}</div>
-                <div class="sr-director">${isActingAward(r.award) ? r.title : r.director}</div>
-                <div class="sr-meta">
-                  <span class="sr-tag ${r.fest}">${festNames[r.fest]}</span>
-                  <span class="sr-tag year">${r.year}</span>
-                  <span class="sr-award">${r.award}</span>
-                </div>
-              </div>
-            </div>`).join('')}
+          ${letters[l].map(f => renderGroupedCard(f)).join('')}
         </div>`).join('')}
     </div>`;
 }
@@ -1397,25 +1411,15 @@ function renderSearch(app, q){
       });
     });
   });
+  const grouped = groupByFilm(results);
+  grouped.sort((a,b) => a.title.localeCompare(b.title, 'es'));
   app.innerHTML = `
     <div class="fest-section">
       <div style="font-size:0.65rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:12px;">
-        Search Results — ${results.length} films found
+        Search Results — ${grouped.length} films found
       </div>
       <div class="search-results">
-        ${results.slice(0,50).map(r => `
-          <div class="search-result-card" onclick="state.search='';document.getElementById('searchInput').value='';state.year='${r.year}';state.festival='${r.fest}';state.view='awards';render();setTimeout(()=>{const idx=DATA['${r.year}']['${r.fest}'].findIndex(a=>a.title===decodeURIComponent('${encodeURIComponent(r.title)}'));if(idx>=0)openModal(idx,'${r.year}','${r.fest}')},100)">
-            <div class="sr-poster">${r.poster ? `<img src="${r.poster}" alt="" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.7rem">🎬</div>'}</div>
-            <div class="sr-info">
-              <div class="sr-title">${isActingAward(r.award) ? getActorName(r) : r.title}</div>
-              <div class="sr-director">${isActingAward(r.award) ? r.title : r.director}</div>
-              <div class="sr-meta">
-                <span class="sr-tag ${r.fest}">${festNames[r.fest]}</span>
-                <span class="sr-tag year">${r.year}</span>
-                <span class="sr-award">${r.award}</span>
-              </div>
-            </div>
-          </div>`).join('')}
+        ${grouped.slice(0,50).map(f => renderGroupedCard(f)).join('')}
       </div>
     </div>`;
 }
