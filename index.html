@@ -36,52 +36,129 @@
     .bg-atmosphere {
       position: fixed; top:0; left:0; right:0; bottom:0;
       z-index:0; overflow:hidden; pointer-events:none;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1205 30%, #2a1f0a 50%, #1a1205 70%, #0a0a0a 100%);
     }
     .bg-atmosphere::before {
-      content:''; position:absolute; top:-15%; left:-5%;
-      width:55%; height:65%;
-      background: radial-gradient(ellipse, rgba(20,80,80,0.18) 0%, transparent 70%);
-      filter: blur(90px);
+      content:''; position:absolute; top:-15%; right:-30%;
+      width:80%; height:200%;
+      background: radial-gradient(ellipse, rgba(212,175,55,0.08) 0%, transparent 70%);
+      pointer-events:none;
     }
     .bg-atmosphere::after {
-      content:''; position:absolute; bottom:-10%; right:-5%;
-      width:45%; height:55%;
-      background: radial-gradient(ellipse, rgba(40,60,90,0.15) 0%, transparent 70%);
-      filter: blur(80px);
+      content:''; position:absolute; bottom:0; left:0; right:0; height:200px;
+      background: linear-gradient(to top, #0a0a0a, transparent);
+      pointer-events:none;
     }
 
     .page-content {
       position: relative;
       z-index: 1;
-      padding: 24px 40px;
+      padding: 28px 48px;
       max-width: 1500px;
       margin: 0 auto;
     }
 
-    /* ═══ HEADER ═══ */
+    /* ═══ HEADER/NAV ═══ */
     header {
+      display: none;
+    }
+    nav {
       display: flex;
-      align-items: baseline;
-      gap: 16px;
-      margin-bottom: 28px;
-      animation: fadeIn 0.6s ease;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 10;
     }
-    header h1 {
-      font-size: 2.4rem;
-      font-weight: 900;
-      letter-spacing: -1px;
+    .nav-logo {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 4px;
       text-transform: uppercase;
-      line-height: 1;
-      background: linear-gradient(135deg, #d4af37 0%, #f5d76e 50%, #d4af37 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #d4af37;
     }
-    .author-tag {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.5);
+    .nav-logo span {
+      font-weight: 400;
+      color: rgba(255,255,255,0.35);
       letter-spacing: 1px;
+      text-transform: none;
+      font-size: 0.75rem;
+    }
+    #navLinks {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    #navLinks a {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.3s;
+      cursor: pointer;
+    }
+    #navLinks a:hover { color: #fff; }
+    #navLinks a.active { color: #d4af37; }
+
+    /* ═══ HERO SECTION ═══ */
+    .hero-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 5;
+      margin-bottom: 80px;
+    }
+    .hero-tag {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(212,175,55,0.6);
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: 5.5rem;
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -3px;
+      margin-bottom: 24px;
+      max-width: 800px;
+    }
+    .hero-title span { color: #d4af37; }
+    .hero-subtitle {
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.4);
+      max-width: 500px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+    }
+    .hero-stat {
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .hero-stat:hover .stat-num { color: #d4af37; }
+    .stat-num {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      transition: color 0.3s;
+    }
+    .stat-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-top: 4px;
     }
 
     /* ═══ SEARCH BAR ═══ */
@@ -89,23 +166,21 @@
       margin-bottom: 20px;
     }
     .search-bar input {
-      padding: 14px 24px;
-      background: rgba(255,255,255,0.06);
+      padding: 12px 24px;
+      background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 50px;
+      border-radius: 30px;
       color: var(--text);
-      font-size: 0.9rem;
+      font-size: 0.75rem;
       font-family: 'Inter', sans-serif;
       width: 100%;
       max-width: 450px;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      outline: none;
       transition: all 0.3s;
     }
-    .search-bar input::placeholder { color: rgba(255,255,255,0.3); }
+    .search-bar input::placeholder { color: rgba(255,255,255,0.25); }
     .search-bar input:focus {
-      outline: none;
-      border-color: rgba(255,255,255,0.2);
+      border-color: rgba(212,175,55,0.3);
       background: rgba(255,255,255,0.08);
     }
 
@@ -138,6 +213,1118 @@
       color: #d4af37;
       background: rgba(212,175,55,0.1);
     }
+
+    /* ═══ YEARS SECTION ═══ */
+    .years-section {
+      padding: 60px 0 40px;
+      position: relative;
+    }
+    .years-section::before {
+      content:'';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+    }
+    .section-label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      margin-bottom: 24px;
+    }
+    .years-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .year-pill {
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+    }
+    .year-pill:hover {
+      background: rgba(212,175,55,0.1);
+      border-color: rgba(212,175,55,0.2);
+      color: #d4af37;
+    }
+    .year-pill.active {
+      background: rgba(212,175,55,0.15);
+      border-color: rgba(212,175,55,0.4);
+      color: #d4af37;
+    }
+
+    /* ═══ FESTIVALS GRID ═══ */
+    .festivals-section {
+      padding: 40px 0 60px;
+    }
+    .festivals-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 16px;
+    }
+    .fest-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .fest-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .fest-card:hover::before { opacity: 1; }
+    .fest-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.1); }
+    .fest-card.cannes::before { background: #d4af37; }
+    .fest-card.venice::before { background: #c0392b; }
+    .fest-card.berlin::before { background: #8e44ad; }
+    .fest-card.toronto::before { background: #e74c3c; }
+    .fest-card.sansebastian::before { background: #2ecc71; }
+    .fest-card.oscar::before { background: #f1c40f; }
+    .fest-card.mardelplata::before { background: #3498db; }
+    .fest-icon { font-size: 2rem; margin-bottom: 12px; }
+    .fest-name { font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+    .fest-count { font-size: 0.65rem; color: rgba(255,255,255,0.25); }
+
+    /* ═══ FESTIVAL HEADER ═══ */
+    .fest-header {
+      padding: 60px 0 40px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    .fest-header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 40%, #2a0f0f 60%, #0a0a0a 100%);
+      z-index: 0;
+    }
+    .fest-header::after {
+      content: attr(data-name);
+      position: absolute;
+      right: 0; bottom: -20px;
+      font-size: 8rem; font-weight: 900;
+      color: rgba(192,57,43,0.06);
+      letter-spacing: -4px;
+      z-index: 1;
+    }
+    .fest-header > * { position: relative; z-index: 2; }
+    .fest-year-nav {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .fy-pill {
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .fy-pill:hover {
+      color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.06);
+    }
+    .fy-pill.active {
+      color: #c0392b;
+      background: rgba(192,57,43,0.1);
+      border-color: rgba(192,57,43,0.3);
+    }
+    .fest-title {
+      font-size: 4.5rem;
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .fest-title span { color: #c0392b; }
+    .fest-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.3);
+      font-weight: 300;
+    }
+
+    /* ═══ AWARDS GRID ═══ */
+    .awards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+      gap: 20px;
+      max-width: 1400px;
+      animation: fadeIn 0.6s ease;
+    }
+    .award-row {
+      background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 28px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .award-row:hover {
+      border-color: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .award-title {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #c0392b;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Per-festival award title colors */
+    .award-cannes .award-title { color: var(--cannes); }
+    .award-venice .award-title { color: var(--venice); }
+    .award-berlin .award-title { color: var(--berlin); }
+    .award-toronto .award-title { color: var(--toronto); }
+    .award-sansebastian .award-title { color: var(--sansebastian); }
+    .award-oscar .award-title { color: var(--oscar); }
+    .award-mardelplata .award-title { color: var(--mardelplata); }
+
+    /* New award card styles (used by redesigned renderAwards) */
+    .award-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 28px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .award-card:hover {
+      border-color: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .award-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .award-cannes .award-label { color: var(--cannes); }
+    .award-venice .award-label { color: var(--venice); }
+    .award-berlin .award-label { color: var(--berlin); }
+    .award-toronto .award-label { color: var(--toronto); }
+    .award-sansebastian .award-label { color: var(--sansebastian); }
+    .award-oscar .award-label { color: var(--oscar); }
+    .award-mardelplata .award-label { color: var(--mardelplata); }
+
+    .film-entry {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+    .film-poster-placeholder {
+      width: 110px;
+      height: 165px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.08);
+    }
+    .film-entry .film-poster {
+      width: 110px;
+      height: 165px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .film-entry .film-info {
+      flex: 1;
+    }
+    .film-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .film-director-name {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 400;
+      margin-bottom: 4px;
+    }
+    .film-country {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+    }
+    .awards-section {
+      padding: 40px 0;
+    }
+
+    /* Festival header */
+    .fest-header {
+      padding: 40px 48px 30px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0a0a 0%, rgba(20,10,10,0.8) 50%, #0a0a0a 100%);
+      border-radius: 20px;
+      margin-bottom: 30px;
+    }
+    .fest-header::after {
+      content: attr(data-name);
+      position: absolute;
+      right: 48px;
+      bottom: -20px;
+      font-size: 8rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.03);
+      letter-spacing: -4px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .fest-header > * { position: relative; z-index: 2; }
+    .fest-year-nav {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .fy-pill {
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .fy-pill:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+    .fy-pill.active { color: #d4af37; background: rgba(212,175,55,0.1); border-color: rgba(212,175,55,0.3); }
+    .fest-title {
+      font-size: 4rem;
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .fest-title span { color: var(--venice); }
+    .fest-sub { font-size: 0.85rem; color: rgba(255,255,255,0.3); font-weight: 300; }
+
+    .carousel {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 0;
+    }
+
+    .film-card {
+      display: flex;
+      gap: 18px;
+      cursor: pointer;
+      transition: all 0.25s;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.02);
+      padding: 12px;
+      position: relative;
+      align-items: center;
+    }
+    .film-card:hover {
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-1px);
+    }
+    .film-poster {
+      width: 110px;
+      height: 165px;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 12px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.03);
+    }
+    .film-poster-placeholder {
+      width: 110px;
+      height: 165px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.08);
+    }
+    .film-overlay { display: none; }
+
+    .film-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      flex: 1;
+    }
+    .film-info .winner-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .film-info .film-title {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 400;
+      margin-bottom: 4px;
+    }
+    .film-info .film-director {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+      font-weight: 400;
+    }
+    .no-poster {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; text-align: center;
+      padding: 10px; color: rgba(255,255,255,0.2);
+    }
+
+    /* ═══ SEARCH RESULTS ═══ */
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 0;
+      max-width: 900px;
+    }
+    .search-result-card {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .search-result-card:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.1);
+      transform: translateX(4px);
+    }
+    .sr-poster {
+      width: 48px; height: 72px;
+      border-radius: 6px; overflow: hidden; flex-shrink: 0;
+      background: rgba(255,255,255,0.05);
+    }
+    .sr-poster img { width:100%; height:100%; object-fit:cover; }
+    .sr-info { flex:1; min-width:0; }
+    .sr-title { font-size:0.9rem; font-weight:700; margin-bottom:2px; }
+    .sr-director { font-size:0.72rem; color:rgba(255,255,255,0.4); margin-bottom:4px; }
+    .sr-meta { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+    .sr-tag {
+      font-size:0.58rem; font-weight:600; letter-spacing:1.5px;
+      text-transform:uppercase; padding:2px 7px;
+      border-radius:4px;
+    }
+    .sr-tag.cannes { color:#d4af37; border:1px solid rgba(212,175,55,0.2); background:rgba(212,175,55,0.06); }
+    .sr-tag.venice { color:#c0392b; border:1px solid rgba(192,57,43,0.2); background:rgba(192,57,43,0.06); }
+    .sr-tag.berlin { color:#9b59b6; border:1px solid rgba(155,89,182,0.2); background:rgba(155,89,182,0.06); }
+    .sr-tag.toronto { color:#e74c3c; border:1px solid rgba(231,76,60,0.2); background:rgba(231,76,60,0.06); }
+    .sr-tag.year { color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.03); }
+    .sr-award { font-size:0.6rem; color:rgba(255,255,255,0.25); }
+
+    /* ═══ FILM LIST ═══ */
+    .search-hero {
+      padding: 60px 48px 40px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #0a1215 40%, #0a1a20 60%, #0a0a0a 100%);
+      position: relative;
+    }
+    .search-hero::after {
+      content: 'FILMS';
+      position: absolute;
+      right: 48px;
+      bottom: -10px;
+      font-size: 7rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.02);
+      letter-spacing: -3px;
+    }
+    .search-hero > * { position: relative; z-index: 2; }
+    .search-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 8px;
+    }
+    .search-title span { color: #d4af37; }
+    .search-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 24px;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      max-width: 600px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 16px 24px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    .search-bar input::placeholder { color: rgba(255,255,255,0.25); }
+    .search-icon {
+      padding: 16px 24px;
+      color: rgba(255,255,255,0.3);
+      font-size: 1.1rem;
+    }
+
+    /* ALPHABET NAV */
+    .alpha-nav {
+      padding: 20px 48px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .alpha-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .alpha-pill:hover {
+      background: rgba(212,175,55,0.1);
+      color: #d4af37;
+    }
+    .alpha-pill.active {
+      background: rgba(212,175,55,0.15);
+      color: #d4af37;
+      border: 1px solid rgba(212,175,55,0.3);
+    }
+
+    /* FILM LIST */
+    .film-list {
+      padding: 30px 48px 80px;
+      max-width: 1000px;
+    }
+    .letter-header {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: rgba(212,175,55,0.3);
+      margin: 30px 0 16px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .film-row {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .film-row:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.08);
+      transform: translateX(4px);
+    }
+    .film-row-poster {
+      width: 65px;
+      height: 97px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.1);
+    }
+    .film-row-poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .film-row-info {
+      flex: 1;
+    }
+    .film-row-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .film-row-director {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 8px;
+    }
+    .film-row-awards {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .award-tag {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .award-tag.cannes {
+      background: rgba(212,175,55,0.1);
+      color: #d4af37;
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+    .award-tag.oscar {
+      background: rgba(241,196,15,0.1);
+      color: #f1c40f;
+      border: 1px solid rgba(241,196,15,0.2);
+    }
+    .award-tag.venice {
+      background: rgba(192,57,43,0.1);
+      color: #c0392b;
+      border: 1px solid rgba(192,57,43,0.2);
+    }
+    .award-tag.toronto {
+      background: rgba(231,76,60,0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231,76,60,0.2);
+    }
+    .award-tag.berlin {
+      background: rgba(142,68,173,0.1);
+      color: #8e44ad;
+      border: 1px solid rgba(142,68,173,0.2);
+    }
+    .award-tag.sansebastian {
+      background: rgba(46,204,113,0.1);
+      color: #2ecc71;
+      border: 1px solid rgba(46,204,113,0.2);
+    }
+    .award-tag.mardelplata {
+      background: rgba(52,152,219,0.1);
+      color: #3498db;
+      border: 1px solid rgba(52,152,219,0.2);
+    }
+    .award-tag.year-tag {
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .award-tag.award-name {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.2);
+      padding-left: 0;
+      letter-spacing: 0.5px;
+      text-transform: none;
+      font-weight: 500;
+    }
+
+    /* ═══ MODAL ═══ */
+    .modal {
+      display: none;
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 1000;
+      overflow-y: auto;
+      animation: fadeIn 0.3s ease;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.show {
+      display: flex;
+    }
+    .modal-content {
+      background: linear-gradient(160deg, #151515 0%, #0d0d0d 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      max-width: 680px;
+      width: 90%;
+      overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.6);
+      position: relative;
+      animation: slideUp 0.3s ease;
+    }
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      color: var(--text);
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      z-index: 10;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); }
+    .modal-poster-area {
+      position: relative;
+      height: 320px;
+      background: linear-gradient(145deg, #1a1205, #0a0a0a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .modal-poster-area::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to top, #151515, transparent);
+    }
+    .modal-poster-img {
+      height: 280px;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,0.04);
+      width: 186px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: rgba(255,255,255,0.1);
+    }
+    .modal-poster {
+      width: 100%;
+      max-width: 220px;
+      margin: 0 auto 20px;
+      border-radius: 12px;
+      display: block;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .modal-body {
+      padding: 32px 36px 36px;
+    }
+    .modal-award-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: rgba(192,57,43,0.1);
+      border: 1px solid rgba(192,57,43,0.2);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #c0392b;
+      margin-bottom: 16px;
+    }
+    .modal-title {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .modal-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 20px;
+    }
+    .modal-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .modal-award {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 50px;
+      margin-bottom: 14px;
+    }
+    .modal-award.cannes { color:#d4af37; background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.2); }
+    .modal-award.venice { color:#c0392b; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); }
+    .modal-award.berlin { color:#9b59b6; background:rgba(155,89,182,0.08); border:1px solid rgba(155,89,182,0.2); }
+    .modal-award.toronto { color:#e74c3c; background:rgba(231,76,60,0.08); border:1px solid rgba(231,76,60,0.2); }
+    .modal-synopsis {
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 24px;
+      font-weight: 300;
+    }
+    .modal-cast-label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.15);
+      margin-bottom: 8px;
+    }
+    .modal-cast {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.6;
+    }
+
+    /* ═══ RATINGS ═══ */
+    .ratings-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .rating-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .rating-chip.imdb {
+      background: rgba(245,197,24,0.1);
+      border: 1px solid rgba(245,197,24,0.2);
+      color: #f5c518;
+    }
+    .rating-chip.rt {
+      background: rgba(250,50,50,0.1);
+      border: 1px solid rgba(250,50,50,0.2);
+      color: #fa3232;
+    }
+    .rating-chip.tmdb {
+      background: rgba(1,210,119,0.1);
+      border: 1px solid rgba(1,210,119,0.2);
+      color: #01d277;
+    }
+
+    /* ═══ STREAMING PLATFORMS ═══ */
+    .streaming-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .streaming-label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.15);
+      margin-bottom: 12px;
+    }
+    .streaming-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .streaming-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stream-chip {
+      padding: 8px 16px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .stream-chip:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    .streaming-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .streaming-chip:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+    .streaming-chip img {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+    }
+    .streaming-chip .chip-type {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.4);
+    }
+    .streaming-chip .chip-type.flat { background: rgba(9,206,163,0.12); color: #09cea3; }
+    .streaming-chip .chip-type.rent { background: rgba(245,197,24,0.12); color: #f5c518; }
+    .streaming-chip .chip-type.buy { background: rgba(231,76,60,0.12); color: #e74c3c; }
+    .streaming-loading {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.25);
+      padding: 8px 0;
+    }
+    .jw-credit {
+      font-size: 0.55rem;
+      color: rgba(255,255,255,0.15);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+    .jw-credit a { color: rgba(255,255,255,0.25); text-decoration: none; }
+    .jw-credit a:hover { color: rgba(255,255,255,0.4); }
+
+    /* ═══ JUSTWATCH LINK ═══ */
+    .jw-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(9,206,163,0.08);
+      border: 1px solid rgba(9,206,163,0.2);
+      border-radius: 8px;
+      color: #09cea3;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s;
+      margin-top: 14px;
+      cursor: pointer;
+    }
+    .jw-btn:hover {
+      background: rgba(9,206,163,0.15);
+      border-color: rgba(9,206,163,0.4);
+      transform: translateY(-1px);
+    }
+    .jw-btn svg {
+      width: 18px; height: 18px;
+    }
+
+    /* ═══ PERSON LINKS ═══ */
+    .person-link {
+      cursor: pointer;
+      transition: color 0.2s, opacity 0.2s;
+      text-decoration: none;
+    }
+    .person-link:hover {
+      color: #f5c518 !important;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .person-card {
+      display: flex;
+      gap: 16px;
+      padding: 14px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s;
+      align-items: center;
+    }
+    .person-card:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+    .person-card .pc-poster {
+      width: 60px; height: 85px; border-radius: 6px;
+      overflow: hidden; flex-shrink: 0;
+      background: rgba(255,255,255,0.03);
+    }
+    .person-card .pc-poster img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .person-card .pc-info { flex: 1; min-width: 0; }
+    .person-card .pc-title {
+      font-size: 0.9rem; font-weight: 700; margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .person-card .pc-detail {
+      font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 3px;
+    }
+    .person-card .pc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .person-card .pc-tag {
+      font-size: 0.6rem; padding: 2px 8px; border-radius: 4px;
+      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5);
+      font-weight: 600; letter-spacing: 0.5px;
+    }
+    .person-header {
+      margin-bottom: 24px;
+    }
+    .person-header h2 {
+      font-size: 1.5rem; font-weight: 800; margin-bottom: 6px;
+    }
+    .person-header .person-stats {
+      font-size: 0.75rem; color: rgba(255,255,255,0.35);
+      letter-spacing: 1px; text-transform: uppercase; font-weight: 600;
+    }
+    .person-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 12px;
+    }
+
+    /* ═══ IMDB RATING ═══ */
+    .imdb-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: rgba(245,197,24,0.1);
+      border: 1px solid rgba(245,197,24,0.2);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #f5c518;
+      letter-spacing: 0.3px;
+    }
+    .imdb-badge .imdb-logo {
+      font-size: 0.6rem;
+      font-weight: 900;
+      background: #f5c518;
+      color: #000;
+      padding: 1px 4px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+    .imdb-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #f5c518;
+      opacity: 0.85;
+      margin-top: 3px;
+    }
+    .imdb-mini .imdb-logo {
+      font-size: 0.5rem;
+      font-weight: 900;
+      background: #f5c518;
+      color: #000;
+      padding: 0px 3px;
+      border-radius: 2px;
+    }
+
+    .rt-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: rgba(250,50,50,0.1);
+      border: 1px solid rgba(250,50,50,0.2);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fa3232;
+      letter-spacing: 0.3px;
+    }
+    .rt-badge .rt-logo {
+      font-size: 0.6rem;
+      font-weight: 900;
+      background: #fa3232;
+      color: #fff;
+      padding: 1px 4px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ═══ ACTOR PHOTOS ═══ */
+    .actor-photo {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .award-row:has(.actor-photo) .film-card {
+      align-items: center;
+    }
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
     /* ═══ YEAR GRID (home) ═══ */
     .year-grid { animation: fadeIn 0.6s ease; }
@@ -402,506 +1589,6 @@
     .logo-img { width: 40px; height: 40px; object-fit: contain; margin-bottom: 8px; }
     .fest-logo-svg { width: 40px; height: 40px; margin-bottom: 8px; }
 
-    /* ═══ AWARDS GRID ═══ */
-    .awards-container {
-      max-width: 1400px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-      gap: 20px;
-    }
-    .award-row {
-      animation: fadeIn 0.6s ease;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 22px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    .award-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    /* Per-festival award title colors */
-    .award-cannes .award-title { color: var(--cannes); }
-    .award-venice .award-title { color: var(--venice); }
-    .award-berlin .award-title { color: var(--berlin); }
-    .award-toronto .award-title { color: var(--toronto); }
-    .award-sansebastian .award-title { color: var(--sansebastian); }
-    .award-oscar .award-title { color: var(--oscar); }
-    .award-mardelplata .award-title { color: var(--mardelplata); }
-
-    .carousel {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      padding: 0;
-    }
-
-    .film-card {
-      display: flex;
-      gap: 16px;
-      cursor: pointer;
-      transition: all 0.25s;
-      border-radius: 12px;
-      overflow: hidden;
-      background: rgba(255,255,255,0.02);
-      padding: 12px;
-      position: relative;
-    }
-    .film-card:hover {
-      background: rgba(255,255,255,0.06);
-      transform: translateY(-1px);
-    }
-    .film-poster {
-      width: 100px;
-      height: 150px;
-      object-fit: cover;
-      object-position: center;
-      border-radius: 8px;
-      flex-shrink: 0;
-    }
-    .film-overlay { display: none; }
-
-    .film-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-width: 0;
-    }
-    .film-info .winner-name {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .film-info .film-title {
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.6);
-      font-weight: 500;
-      margin-bottom: 3px;
-    }
-    .film-info .film-director {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.35);
-    }
-    .no-poster {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem; text-align: center;
-      padding: 10px; color: rgba(255,255,255,0.2);
-    }
-
-    /* ═══ SEARCH RESULTS ═══ */
-    .search-results {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 10px 0;
-      max-width: 900px;
-    }
-    .search-result-card {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 12px;
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .search-result-card:hover {
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.1);
-    }
-    .sr-poster {
-      width: 48px; height: 72px;
-      border-radius: 6px; overflow: hidden; flex-shrink: 0;
-      background: rgba(255,255,255,0.05);
-    }
-    .sr-poster img { width:100%; height:100%; object-fit:cover; }
-    .sr-info { flex:1; min-width:0; }
-    .sr-title { font-size:0.9rem; font-weight:700; margin-bottom:2px; }
-    .sr-director { font-size:0.72rem; color:rgba(255,255,255,0.4); margin-bottom:4px; }
-    .sr-meta { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
-    .sr-tag {
-      font-size:0.58rem; font-weight:600; letter-spacing:1.5px;
-      text-transform:uppercase; padding:2px 7px;
-      border-radius:4px;
-    }
-    .sr-tag.cannes { color:#d4af37; border:1px solid rgba(212,175,55,0.2); background:rgba(212,175,55,0.06); }
-    .sr-tag.venice { color:#c0392b; border:1px solid rgba(192,57,43,0.2); background:rgba(192,57,43,0.06); }
-    .sr-tag.berlin { color:#9b59b6; border:1px solid rgba(155,89,182,0.2); background:rgba(155,89,182,0.06); }
-    .sr-tag.toronto { color:#e74c3c; border:1px solid rgba(231,76,60,0.2); background:rgba(231,76,60,0.06); }
-    .sr-tag.year { color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.03); }
-    .sr-award { font-size:0.6rem; color:rgba(255,255,255,0.25); }
-
-    /* ═══ MODAL ═══ */
-    .modal {
-      display: none;
-      position: fixed;
-      top:0; left:0; right:0; bottom:0;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      z-index: 1000;
-      overflow-y: auto;
-      animation: fadeIn 0.3s ease;
-    }
-    .modal.show {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-content {
-      background: rgba(20,20,20,0.95);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
-      padding: 36px;
-      max-width: 600px;
-      width: 92%;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      animation: slideUp 0.3s ease;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-    .modal-close {
-      position: absolute;
-      top: 14px; right: 14px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 50%;
-      color: var(--text);
-      font-size: 1.2rem;
-      cursor: pointer;
-      width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
-    .modal-close:hover { background: rgba(255,255,255,0.1); }
-    .modal-poster {
-      width: 100%;
-      max-width: 220px;
-      margin: 0 auto 20px;
-      border-radius: 12px;
-      display: block;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
-    .modal-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
-    }
-    .modal-meta {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.4);
-      flex-wrap: wrap;
-    }
-    .modal-meta span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .modal-award {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 5px 14px;
-      border-radius: 50px;
-      margin-bottom: 14px;
-    }
-    .modal-award.cannes { color:#d4af37; background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.2); }
-    .modal-award.venice { color:#c0392b; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); }
-    .modal-award.berlin { color:#9b59b6; background:rgba(155,89,182,0.08); border:1px solid rgba(155,89,182,0.2); }
-    .modal-award.toronto { color:#e74c3c; background:rgba(231,76,60,0.08); border:1px solid rgba(231,76,60,0.2); }
-    .modal-synopsis {
-      line-height: 1.7;
-      font-size: 0.88rem;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 16px;
-    }
-
-    
-    
-    
-    
-    
-    /* ═══ STREAMING PLATFORMS ═══ */
-    .streaming-section {
-      margin-top: 16px;
-    }
-    .streaming-label {
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.25);
-      margin-bottom: 10px;
-    }
-    .streaming-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .streaming-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 7px 14px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .streaming-chip:hover {
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(255,255,255,0.15);
-      color: #fff;
-    }
-    .streaming-chip img {
-      width: 22px;
-      height: 22px;
-      border-radius: 5px;
-    }
-    .streaming-chip .chip-type {
-      font-size: 0.55rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      padding: 1px 5px;
-      border-radius: 3px;
-      background: rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.4);
-    }
-    .streaming-chip .chip-type.flat { background: rgba(9,206,163,0.12); color: #09cea3; }
-    .streaming-chip .chip-type.rent { background: rgba(245,197,24,0.12); color: #f5c518; }
-    .streaming-chip .chip-type.buy { background: rgba(231,76,60,0.12); color: #e74c3c; }
-    .streaming-loading {
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.25);
-      padding: 8px 0;
-    }
-    .jw-credit {
-      font-size: 0.55rem;
-      color: rgba(255,255,255,0.15);
-      margin-top: 8px;
-      font-weight: 500;
-    }
-    .jw-credit a { color: rgba(255,255,255,0.25); text-decoration: none; }
-    .jw-credit a:hover { color: rgba(255,255,255,0.4); }
-
-    /* ═══ JUSTWATCH LINK ═══ */
-    .jw-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      background: rgba(9,206,163,0.08);
-      border: 1px solid rgba(9,206,163,0.2);
-      border-radius: 8px;
-      color: #09cea3;
-      font-size: 0.82rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.25s;
-      margin-top: 14px;
-      cursor: pointer;
-    }
-    .jw-btn:hover {
-      background: rgba(9,206,163,0.15);
-      border-color: rgba(9,206,163,0.4);
-      transform: translateY(-1px);
-    }
-    .jw-btn svg {
-      width: 18px; height: 18px;
-    }
-
-    /* ═══ PERSON LINKS ═══ */
-    .person-link {
-      cursor: pointer;
-      transition: color 0.2s, opacity 0.2s;
-      text-decoration: none;
-    }
-    .person-link:hover {
-      color: #f5c518 !important;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    .person-card {
-      display: flex;
-      gap: 16px;
-      padding: 14px;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.25s;
-      align-items: center;
-    }
-    .person-card:hover {
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.12);
-      transform: translateY(-2px);
-    }
-    .person-card .pc-poster {
-      width: 60px; height: 85px; border-radius: 6px;
-      overflow: hidden; flex-shrink: 0;
-      background: rgba(255,255,255,0.03);
-    }
-    .person-card .pc-poster img {
-      width: 100%; height: 100%; object-fit: cover;
-    }
-    .person-card .pc-info { flex: 1; min-width: 0; }
-    .person-card .pc-title {
-      font-size: 0.9rem; font-weight: 700; margin-bottom: 4px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .person-card .pc-detail {
-      font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 3px;
-    }
-    .person-card .pc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-    .person-card .pc-tag {
-      font-size: 0.6rem; padding: 2px 8px; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5);
-      font-weight: 600; letter-spacing: 0.5px;
-    }
-    .person-header {
-      margin-bottom: 24px;
-    }
-    .person-header h2 {
-      font-size: 1.5rem; font-weight: 800; margin-bottom: 6px;
-    }
-    .person-header .person-stats {
-      font-size: 0.75rem; color: rgba(255,255,255,0.35);
-      letter-spacing: 1px; text-transform: uppercase; font-weight: 600;
-    }
-    .person-results {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 12px;
-    }
-
-    /* ═══ IMDB RATING ═══ */
-    .imdb-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      background: rgba(245,197,24,0.1);
-      border: 1px solid rgba(245,197,24,0.2);
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #f5c518;
-      letter-spacing: 0.3px;
-    }
-    .imdb-badge .imdb-logo {
-      font-size: 0.6rem;
-      font-weight: 900;
-      background: #f5c518;
-      color: #000;
-      padding: 1px 4px;
-      border-radius: 3px;
-      letter-spacing: 0.5px;
-    }
-    .imdb-mini {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #f5c518;
-      opacity: 0.85;
-      margin-top: 3px;
-    }
-    .imdb-mini .imdb-logo {
-      font-size: 0.5rem;
-      font-weight: 900;
-      background: #f5c518;
-      color: #000;
-      padding: 0px 3px;
-      border-radius: 2px;
-    }
-
-    .rt-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      background: rgba(250,50,50,0.1);
-      border: 1px solid rgba(250,50,50,0.2);
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #fa3232;
-      letter-spacing: 0.3px;
-    }
-    .rt-badge .rt-logo {
-      font-size: 0.6rem;
-      font-weight: 900;
-      background: #fa3232;
-      color: #fff;
-      padding: 1px 4px;
-      border-radius: 3px;
-      letter-spacing: 0.5px;
-    }
-    .ratings-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-    .rating-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
-      border-radius: 5px;
-      font-size: 0.7rem;
-      font-weight: 700;
-    }
-    .rating-chip.imdb { background: rgba(245,197,24,0.12); color: #f5c518; }
-    .rating-chip.rt { background: rgba(250,50,50,0.12); color: #fa3232; }
-    .rating-chip.tmdb { background: rgba(1,210,119,0.12); color: #01d277; }
-
-    /* ═══ ACTOR PHOTOS ═══ */
-    .actor-photo {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      object-fit: cover;
-      object-position: center top;
-      flex-shrink: 0;
-      border: 2px solid rgba(255,255,255,0.1);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    .award-row:has(.actor-photo) .film-card {
-      align-items: center;
-    }
-    /* ═══ ANIMATIONS ═══ */
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
     /* ═══ BOTTOM BAR ═══ */
     .bottom-bar {
       display: flex;
@@ -988,10 +1675,10 @@
 <div class="bg-atmosphere"></div>
 
 <div class="page-content">
-  <header>
-    <h1 style="cursor:pointer" onclick="state.view='years';state.year=null;state.festival=null;render();">Festival Awards Database</h1>
-    <span class="author-tag">by Fer Rubino</span>
-  </header>
+  <nav style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <div style="font-size:0.7rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#d4af37;">Festival Awards Database <span style="font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:none;font-size:0.75rem;">by Fer Rubino</span></div>
+    <div style="display:flex;gap:28px;align-items:center;" id="navLinks"></div>
+  </nav>
 
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search films, directors, awards...">
@@ -1008,10 +1695,7 @@
 </div>
 
 <div class="modal" id="filmModal">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeModal()">×</button>
-    <div id="modalBody"></div>
-  </div>
+  <div id="modalBody"></div>
 </div>
 
 <script>
@@ -1042,8 +1726,17 @@ function updateStats(){
   Object.values(DATA).forEach(y => Object.values(y).forEach(f => totalFilms += f.length));
   const festCount = Object.keys(festNames).length;
   const bar = document.getElementById('statsBar');
+  const navLinks = document.getElementById('navLinks');
   const v = state.view;
+
   bar.innerHTML = `<span class="stat-link ${v==='allfilms'?'active':''}" onclick="showAllFilms()">📽️ <strong>${totalFilms}</strong> Films</span><span class="stat-link ${v==='years'?'active':''}" onclick="goBack('years')">📅 <strong>${Object.keys(DATA).length}</strong> Years</span><span class="stat-link ${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">🎬 <strong>${festCount}</strong> Festivals</span>`;
+
+  navLinks.innerHTML = `
+    <a class="${v==='years'?'active':''}" onclick="goBack('years')">Years</a>
+    <a class="${v==='allfilms'?'active':''}" onclick="showAllFilms()">Films</a>
+    <a class="${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">Festivals</a>
+    <a class="${v==='person'?'active':''}" onclick="state.view='person';render()">Directors</a>
+  `;
 }
 
 function showAllFilms(){
@@ -1211,19 +1904,44 @@ function renderAllFilms(app){
   const sortedLetters = Object.keys(letters).sort((a,b) => a.localeCompare(b, 'es'));
   const uniqueCount = grouped.length;
   app.innerHTML = `
-    <div class="fest-section">
-      <button class="back-btn" onclick="goBack('years')">← All Years</button>
-      <div style="font-size:0.65rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:8px;">
-        All Films — ${uniqueCount} unique films (alphabetical)
+    <div class="search-hero">
+      <h1 class="search-title">All <span>Films</span></h1>
+      <p class="search-sub">${uniqueCount} films across ${Object.keys(DATA).length} years and ${new Set(Object.values(DATA).map(f=>Object.keys(f)).flat()).size} festivals</p>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="alphaSearchInput" placeholder="Search films, directors, awards...">
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;">
-        ${sortedLetters.map(l => `<span onclick="document.getElementById('letter-${l}').scrollIntoView({behavior:'smooth',block:'start'})" style="cursor:pointer;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.75rem;font-weight:700;transition:all 0.2s;" onmouseover="this.style.background='rgba(212,175,55,0.15)';this.style.color='#d4af37'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.5)'">${l}</span>`).join('')}
-      </div>
+    </div>
+
+    <div class="alpha-nav">
+      ${sortedLetters.map(l => `<div class="alpha-pill" onclick="document.getElementById('letter-${l}').scrollIntoView({behavior:'smooth',block:'start'})">${l}</div>`).join('')}
+    </div>
+
+    <div class="film-list">
       ${sortedLetters.map(l => `
-        <div id="letter-${l}" style="font-size:1.4rem;font-weight:900;color:#d4af37;margin:20px 0 10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">${l}</div>
-        <div class="search-results">
-          ${letters[l].map(f => renderGroupedCard(f)).join('')}
-        </div>`).join('')}
+        <div class="letter-header" id="letter-${l}">${l}</div>
+        ${letters[l].map(f => {
+          const awardsByFest = {};
+          f.awards.forEach(a => {
+            if (!awardsByFest[a.fest]) awardsByFest[a.fest] = [];
+            awardsByFest[a.fest].push(a.award);
+          });
+          return `
+            <div class="film-row" onclick="openModal('${f.title}','${f.awards[0].year}','${f.awards[0].fest}')">
+              <div class="film-row-poster">${f.poster ? `<img src="${f.poster}" alt="">` : '🎬'}</div>
+              <div class="film-row-info">
+                <div class="film-row-title">${f.title}</div>
+                <div class="film-row-director">${f.director} — ${f.country}</div>
+                <div class="film-row-awards">
+                  ${Object.entries(awardsByFest).flatMap(([fest, awards]) =>
+                    awards.map(award => `<span class="award-tag ${fest}">${festNames[fest]}</span><span class="award-tag year-tag">${f.awards.find(a=>a.award===award)?.year}</span><span class="award-tag award-name">${award}</span>`)
+                  ).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      `).join('')}
     </div>`;
 }
 
@@ -1296,22 +2014,54 @@ function showFestivalAllYears(fest){
 
 function renderYears(app){
   const years = Object.keys(DATA).sort((a,b)=>b-a);
+  const totalFilms = Object.values(DATA).reduce((sum, fests) => {
+    return sum + Object.values(fests).reduce((fs, awards) => fs + awards.length, 0);
+  }, 0);
+  const totalYears = years.length;
+  const festivals = new Set();
+  Object.values(DATA).forEach(fests => Object.keys(fests).forEach(f => festivals.add(f)));
+
   app.innerHTML = `
-    <div class="year-grid">
-      <h2>Select a Year</h2>
-      <div class="years">
-        ${years.map(yr => `<button class="yr-btn" onclick="state.year='${yr}';state.view='festivals';render()">
-          ${yr}
-          <div class="yr-dots">
-            ${DATA[yr].cannes ? '<div class="dot dot-c"></div>' : ''}
-            ${DATA[yr].venice ? '<div class="dot dot-v"></div>' : ''}
-            ${DATA[yr].berlin ? '<div class="dot dot-b"></div>' : ''}
-            ${DATA[yr].toronto ? '<div class="dot dot-t"></div>' : ''}
-            ${DATA[yr].sansebastian ? '<div class="dot dot-s"></div>' : ''}
-            ${DATA[yr].oscar ? '<div class="dot dot-o"></div>' : ''}
-            ${DATA[yr].mardelplata && DATA[yr].mardelplata.length ? '<div class="dot dot-m"></div>' : ''}
-          </div>
-        </button>`).join('')}
+    <div class="hero-section">
+      <div class="hero-tag">Cinema Festival Awards 1990 — 2025</div>
+      <h1 class="hero-title">Every<br><span>Award.</span><br>Every Year.</h1>
+      <p class="hero-subtitle">La base de datos más completa de premios de los principales festivales de cine del mundo.</p>
+      <div class="hero-stats">
+        <div class="hero-stat" onclick="state.view='allfilms';render()">
+          <div class="stat-num">${totalFilms}</div>
+          <div class="stat-label">Films</div>
+        </div>
+        <div class="hero-stat" onclick="state.view='years';render()">
+          <div class="stat-num">${totalYears}</div>
+          <div class="stat-label">Years</div>
+        </div>
+        <div class="hero-stat" onclick="showAllFestivals()">
+          <div class="stat-num">${festivals.size}</div>
+          <div class="stat-label">Festivals</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="years-section">
+      <div class="section-label">Browse by Year</div>
+      <div class="years-grid">
+        ${years.map(yr => `<button class="year-pill" onclick="state.year='${yr}';state.view='festivals';render()">${yr}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="festivals-section">
+      <div class="section-label">Festivals</div>
+      <div class="festivals-grid">
+        ${['cannes', 'venice', 'berlin', 'toronto', 'sansebastian', 'oscar', 'mardelplata'].map(f => {
+          const count = Object.values(DATA).reduce((sum, fests) => sum + (fests[f] ? fests[f].length : 0), 0);
+          return count > 0 ? `
+            <div class="fest-card ${f}" onclick="showFestivalAllYears('${f}')">
+              <div class="fest-icon">${festLogos[f]||''}</div>
+              <div class="fest-name" style="color:${f==='cannes'?'#d4af37':f==='venice'?'#c0392b':f==='berlin'?'#8e44ad':f==='toronto'?'#e74c3c':f==='sansebastian'?'#2ecc71':f==='oscar'?'#f1c40f':'#3498db'}">${festNames[f]}</div>
+              <div class="fest-count">${count} awards</div>
+            </div>
+          ` : '';
+        }).join('')}
       </div>
     </div>`;
 }
@@ -1367,33 +2117,33 @@ function renderAwards(app){
   const awards = DATA[y][f];
   const festColor = f;
   app.innerHTML = `
-    <div class="fest-section">
-      <button class="back-btn" onclick="goBack('festivals')">← Festivals ${y}</button>
-      ${renderYearScroller(y)}
-      <div class="section-hdr">
-        <h3>${festLogos[f]||''} ${festNames[f]}</h3>
-        <div class="year-title">${y}</div>
+    <div class="fest-header" data-name="${festNames[f]}">
+      <div class="fest-year-nav">
+        ${Object.keys(DATA).sort((a,b)=>b-a).map(yr => `<div class="fy-pill ${yr===y?'active':''}" onclick="state.year='${yr}';state.view='awards';render()">${yr}</div>`).join('')}
       </div>
+      <h1 class="fest-title"><span style="color:var(--${f})">${festNames[f]}</span> ${y}</h1>
+      <p class="fest-sub">${awards.length} awards</p>
+    </div>
+
+    <div class="awards-section">
       <div class="awards-container">
         ${awards.map((a,idx) => `
-          <div class="award-row award-${festColor}" onclick="openModal(${idx},'${y}','${f}')">
-            <div class="award-title">${a.award}</div>
-            <div class="carousel">
-              <div class="film-card">
-                ${a.actor_photo
-                  ? `<img class="actor-photo" src="${a.actor_photo}" alt="${a.director}" loading="lazy" onerror="this.style.display='none'">`
-                  : ''}
-                ${a.poster
-                  ? `<img class="film-poster" src="${a.poster}" alt="${a.title}" loading="lazy" onerror="this.style.display='none'">`
-                  : `<div class="film-poster no-poster-card" style="background:linear-gradient(135deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px"><div style="font-size:2rem;opacity:0.25">🎬</div><div style="font-size:0.6rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.15">No Poster</div></div>`}
-                <div class="film-info">
-                  ${isActingAward(a.award)
-                    ? `<div class="winner-name person-link" onclick="event.stopPropagation();searchPerson(decodeURIComponent('${encodeURIComponent(getActorName(a))}'))">${getActorName(a)}</div>
-                       <div class="film-director">${a.title}</div>`
-                    : `<div class="winner-name">${a.title}</div>
-                       <div class="film-director person-link" onclick="event.stopPropagation();searchPerson(decodeURIComponent('${encodeURIComponent(a.director)}'))">${a.director}</div>`}
-                  <div class="film-director" style="margin-top:2px;opacity:0.5">${a.country||''}</div>
-                </div>
+          <div class="award-card award-${festColor}" onclick="openModal(${idx},'${y}','${f}')">
+            <div class="award-label">${a.award}</div>
+            <div class="film-entry">
+              ${a.actor_photo
+                ? `<img class="actor-photo" src="${a.actor_photo}" alt="${a.director}" loading="lazy" onerror="this.style.display='none'">`
+                : ''}
+              ${a.poster
+                ? `<img class="film-poster" src="${a.poster}" alt="${a.title}" loading="lazy" onerror="this.style.display='none'">`
+                : `<div class="film-poster-placeholder">🎬</div>`}
+              <div class="film-info">
+                ${isActingAward(a.award)
+                  ? `<div class="film-name person-link" onclick="event.stopPropagation();searchPerson(decodeURIComponent('${encodeURIComponent(getActorName(a))}'))">${getActorName(a)}</div>
+                     <div class="film-director-name">${a.title}</div>`
+                  : `<div class="film-name">${a.title}</div>
+                     <div class="film-director-name person-link" onclick="event.stopPropagation();searchPerson(decodeURIComponent('${encodeURIComponent(a.director)}'))">${a.director}</div>`}
+                <div class="film-country">${a.country||''}</div>
               </div>
             </div>
           </div>`).join('')}
@@ -1436,25 +2186,31 @@ function openModal(titleOrIdx, year, fest){
   const modal = document.getElementById('filmModal');
   const body = document.getElementById('modalBody');
   body.innerHTML = `
-    ${film.poster ? `<img class="modal-poster" src="${film.poster}" alt="${film.title}">` : ''}
-    ${film.actor_photo ? `<img src="${film.actor_photo}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid rgba(255,255,255,0.1);margin-bottom:12px;display:block;">` : ''}
-    <div class="modal-award ${fest}">🏆 ${film.award}</div>
-    ${isActingAward(film.award)
-      ? `<div class="modal-title person-link" onclick="closeModal();searchPerson(decodeURIComponent('${encodeURIComponent(getActorName(film))}'))">${getActorName(film)}</div>
-         <div class="modal-meta"><span>🎬 ${film.title}</span>`
-      : `<div class="modal-title">${film.title}</div>
-         <div class="modal-meta"><span class="person-link" onclick="closeModal();searchPerson(decodeURIComponent('${encodeURIComponent(film.director)}'))">🎬 ${film.director}</span>`}
-      <span>🌍 ${film.country || 'N/A'}</span>
-      <span>📅 ${festNames[fest]} ${year}</span>
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeModal()">✕</div>
+      <div class="modal-poster-area">
+        ${film.poster ? `<img src="${film.poster}" alt="${film.title}" style="height:280px;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.5);position:relative;z-index:1;">` : `<div class="modal-poster-img">🎬</div>`}
+      </div>
+      <div class="modal-body">
+        <div class="modal-award-badge">🏆 ${film.award} — ${festNames[fest]} ${year}</div>
+        ${isActingAward(film.award)
+          ? `<div class="modal-title person-link" onclick="closeModal();searchPerson(decodeURIComponent('${encodeURIComponent(getActorName(film))}'))">${getActorName(film)}</div>
+             <div class="modal-meta"><span>🎬 ${film.title}</span>`
+          : `<div class="modal-title">${film.title}</div>
+             <div class="modal-meta"><span class="person-link" onclick="closeModal();searchPerson(decodeURIComponent('${encodeURIComponent(film.director)}'))">🎬 ${film.director}</span>`}
+          <span>🌍 ${film.country || 'N/A'}</span>
+          <span>📅 ${year}</span>
+        </div>
+        ${renderRatingsBadges(film) ? `<div class="ratings-row">${renderRatingsBadges(film)}</div>` : ''}
+        ${film.synopsis ? `<div class="modal-synopsis">${film.synopsis}</div>` : ''}
+        ${film.cast ? `<div class="modal-cast-label">Cast</div><div class="modal-cast">${film.cast}</div>` : ''}
+        ${film.title !== '(Sin competición por COVID-19)' ? `<div class="streaming-row" id="streaming-${year}-${fest}">
+          <div class="streaming-label">¿Dónde verla en Argentina?</div>
+          <div class="streaming-loading" id="streaming-content">Buscando disponibilidad...</div>
+          <div class="jw-credit">Datos de <a href="https://www.justwatch.com/ar/buscar?q=${encodeURIComponent(film.title)}" target="_blank">JustWatch</a></div>
+        </div>` : ''}
+      </div>
     </div>
-    ${renderRatingsBadges(film)}
-    ${film.synopsis ? `<div class="modal-synopsis">${film.synopsis}</div>` : ''}
-    ${film.cast ? `<div style="font-size:0.6rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:6px;">Cast</div><div style="font-size:0.82rem;color:rgba(255,255,255,0.4);line-height:1.5;">${film.cast}</div>` : ''}
-    ${film.title !== '(Sin competición por COVID-19)' ? `<div class="streaming-section" id="streaming-${year}-${fest}">
-      <div class="streaming-label">¿Dónde verla en Argentina?</div>
-      <div class="streaming-loading" id="streaming-content">Buscando disponibilidad...</div>
-      <div class="jw-credit">Datos de <a href="https://www.justwatch.com/ar/buscar?q=${encodeURIComponent(film.title)}" target="_blank">JustWatch</a></div>
-    </div>` : ''}
   `;
   modal.classList.add('show');
 }
