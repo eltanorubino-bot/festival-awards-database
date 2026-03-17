@@ -301,7 +301,7 @@
     .fest-card.oscar::before { background: #f1c40f; }
     .fest-card.mardelplata::before { background: #3498db; }
     .fest-icon { font-size: 2rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; min-height: 60px; }
-    .fest-icon .fest-logo-img { max-width: 90px; max-height: 70px; }
+    .fest-icon .fest-logo-img { mix-blend-mode: screen; max-width: 90px; max-height: 70px; }
     .fest-name { font-size: 0.82rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
     .fest-count { font-size: 0.75rem; color: rgba(255,255,255,0.25); }
 
@@ -2420,7 +2420,7 @@ function renderYears(app){
       <div class="autocomplete-dropdown" id="homeAcDropdown"></div>
     </div>
 
-    <div class="home-stats-bar" style="display:flex;gap:28px;padding:14px 0;margin-bottom:18px;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.82rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);" id="homeStatsBar"></div>
+    <div class="home-stats-bar" style="display:none;gap:28px;padding:14px 0;margin-bottom:18px;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.82rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);" id="homeStatsBar"></div>
 
     <div class="years-section">
       <div class="section-label">Browse by Year</div>
