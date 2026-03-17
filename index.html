@@ -1839,6 +1839,7 @@
       }
 
       /* Fix nav links overflow */
+      #navTitle { font-size: 0.55rem !important; letter-spacing: 2px !important; }
       #navLinks { gap: 10px !important; flex-wrap: wrap; }
       #navLinks a { font-size: 0.65rem !important; letter-spacing: 1px !important; }
       .donate-btn { font-size: 0.6rem !important; padding: 5px 12px !important; }
@@ -1882,7 +1883,7 @@
 
 <div class="page-content">
   <nav style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-    <div style="cursor:pointer;" onclick="goBack('years')"></div>
+    <div id="navTitle" style="cursor:pointer;font-size:0.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.5);display:none;" onclick="goBack('years')">Festival Awards Database</div>
     <div style="display:flex;gap:32px;align-items:center;" id="navLinks"></div>
   </nav>
 
@@ -1987,13 +1988,16 @@ function updateStats(){
   const searchBarEl = document.querySelector('.page-content > .search-bar');
   const v = state.view;
 
-  // On home page, hide global search+stats (they are duplicated inside the hero)
+  // On home page, hide global search+stats+title (they are duplicated inside the hero)
+  const navTitle = document.getElementById('navTitle');
   if (v === 'years') {
     bar.style.display = 'none';
     if (searchBarEl) searchBarEl.style.display = 'none';
+    if (navTitle) navTitle.style.display = 'none';
   } else {
     bar.style.display = 'flex';
     if (searchBarEl) searchBarEl.style.display = '';
+    if (navTitle) navTitle.style.display = '';
   }
 
   bar.innerHTML = `<span class="stat-link ${v==='allfilms'?'active':''}" onclick="showAllFilms()">📽️ <strong>${totalFilms}</strong> Films</span><span class="stat-link ${v==='years'?'active':''}" onclick="goBack('years')">📅 <strong>${Object.keys(DATA).length}</strong> Years</span><span class="stat-link ${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">🎬 <strong>${festCount}</strong> Festivals</span>`;
