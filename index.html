@@ -2435,7 +2435,7 @@ function renderYears(app){
         ${['cannes', 'venice', 'berlin', 'toronto', 'sansebastian', 'oscar', 'mardelplata'].map(f => {
           const count = Object.values(DATA).reduce((sum, fests) => sum + (fests[f] ? fests[f].length : 0), 0);
           return count > 0 ? `
-            <div class="fest-card ${f}" onclick="showFestivalAllYears('${f}')">
+            <div class="fest-card ${f}" onclick="state.year='2025';state.festival='${f}';state.view='awards';render()">
               <div class="fest-icon">${festLogos[f]||''}</div>
               <div class="fest-name" style="color:${f==='cannes'?'#d4af37':f==='venice'?'#c0392b':f==='berlin'?'#8e44ad':f==='toronto'?'#e74c3c':f==='sansebastian'?'#2ecc71':f==='oscar'?'#f1c40f':'#3498db'}">${festNames[f]}</div>
               <div class="fest-count">${count} awards</div>
