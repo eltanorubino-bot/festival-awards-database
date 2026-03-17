@@ -1735,7 +1735,7 @@ function updateStats(){
     <a class="${v==='years'?'active':''}" onclick="goBack('years')">Years</a>
     <a class="${v==='allfilms'?'active':''}" onclick="showAllFilms()">Films</a>
     <a class="${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">Festivals</a>
-    <a class="${v==='person'?'active':''}" onclick="state.view='person';render()">Directors</a>
+    <a class="${v==='directors'||v==='person'?'active':''}" onclick="state.view='directors';state.person=null;render()">Directors</a>
   `;
 }
 
@@ -1762,6 +1762,7 @@ function render(){
   const q = state.search.toLowerCase();
   if(q) renderSearch(app, q);
   else if(state.view==='allfilms') renderAllFilms(app);
+  else if(state.view==='directors') renderDirectors(app);
   else if(state.view==='allfestivals') renderAllFestivals(app);
   else if(state.view==='years') renderYears(app);
   else if(state.view==='festivals') { renderFestivals(app); setTimeout(scrollToActiveYear, 0); }
@@ -1885,6 +1886,92 @@ function renderGroupedCard(film) {
     </div>
   </div>`;
 }
+function renderDirectors(app){
+  const dirMap = {};
+  Object.entries(DATA).forEach(([yr, fests]) => {
+    Object.entries(fests).forEach(([f, awards]) => {
+      awards.forEach(a => {
+        const name = a.director;
+        if (!name || name === '—' || name === '-') return;
+        if (!dirMap[name]) dirMap[name] = { name, films: [], awards: 0, festivals: new Set(), poster: null };
+        dirMap[name].awards++;
+        dirMap[name].festivals.add(f);
+        if (!dirMap[name].poster && a.poster) dirMap[name].poster = a.poster;
+        const filmKey = a.title + '|' + yr;
+        if (!dirMap[name]._seen) dirMap[name]._seen = new Set();
+        if (!dirMap[name]._seen.has(filmKey)) {
+          dirMap[name]._seen.add(filmKey);
+          dirMap[name].films.push({ title: a.title, year: yr, fest: f, award: a.award, poster: a.poster });
+        } else {
+          const existing = dirMap[name].films.find(fi => fi.title === a.title && fi.year === yr);
+          if (existing) existing.award += ', ' + a.award;
+        }
+      });
+    });
+  });
+  const directors = Object.values(dirMap);
+  directors.forEach(d => { delete d._seen; d.festCount = d.festivals.size; });
+  directors.sort((a,b) => a.name.localeCompare(b.name, 'es'));
+  const letters = {};
+  directors.forEach(d => {
+    const l = d.name[0].toUpperCase();
+    if (!letters[l]) letters[l] = [];
+    letters[l].push(d);
+  });
+  const sortedLetters = Object.keys(letters).sort((a,b) => a.localeCompare(b, 'es'));
+
+  app.innerHTML = `
+    <div class="search-hero">
+      <h1 class="search-title">All <span>Directors</span></h1>
+      <p class="search-sub">${directors.length} directors across ${Object.keys(DATA).length} years and 7 festivals</p>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="dirSearchInput" placeholder="Search directors...">
+      </div>
+    </div>
+
+    <div class="alpha-nav">
+      ${sortedLetters.map(l => `<div class="alpha-pill" onclick="document.getElementById('dir-letter-${l}').scrollIntoView({behavior:'smooth',block:'start'})">${l}</div>`).join('')}
+    </div>
+
+    <div class="film-list" id="directorsList">
+      ${sortedLetters.map(l => `
+        <div class="letter-header" id="dir-letter-${l}">${l}</div>
+        ${letters[l].map(d => `
+          <div class="film-row director-row" onclick="searchPerson('${d.name.replace(/'/g,"\\'")}')">
+            <div class="film-row-poster">${d.poster ? `<img src="${d.poster}" alt="">` : '🎬'}</div>
+            <div class="film-row-info">
+              <div class="film-row-title">${d.name}</div>
+              <div class="film-row-director">${d.awards} award${d.awards!==1?'s':''} · ${d.festCount} festival${d.festCount!==1?'s':''}</div>
+              <div class="film-row-awards">
+                ${d.films.slice(0,5).map(fi => `<span class="award-tag ${fi.fest}">${fi.title}</span><span class="award-tag year-tag">${fi.year}</span>`).join('')}
+                ${d.films.length > 5 ? `<span class="award-tag" style="color:rgba(255,255,255,0.3)">+${d.films.length-5} more</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      `).join('')}
+    </div>`;
+
+  setTimeout(() => {
+    const inp = document.getElementById('dirSearchInput');
+    if (inp) inp.addEventListener('input', function() {
+      const q = this.value.toLowerCase().trim();
+      document.querySelectorAll('.director-row').forEach(row => {
+        const name = row.querySelector('.film-row-title').textContent.toLowerCase();
+        row.style.display = name.includes(q) ? '' : 'none';
+      });
+      document.querySelectorAll('.letter-header').forEach(lh => {
+        const next = [];
+        let sib = lh.nextElementSibling;
+        while (sib && !sib.classList.contains('letter-header')) { next.push(sib); sib = sib.nextElementSibling; }
+        const anyVisible = next.some(n => n.style.display !== 'none');
+        lh.style.display = anyVisible ? '' : 'none';
+      });
+    });
+  }, 100);
+}
+
 function renderAllFilms(app){
   const allFilms = [];
   Object.entries(DATA).forEach(([yr, fests]) => {
