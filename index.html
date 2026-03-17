@@ -1196,14 +1196,14 @@
     }
     .person-card {
       display: flex;
-      gap: 16px;
-      padding: 14px;
+      gap: 20px;
+      padding: 20px;
       background: rgba(255,255,255,0.025);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
+      border-radius: 14px;
       cursor: pointer;
       transition: all 0.25s;
-      align-items: center;
+      align-items: flex-start;
     }
     .person-card:hover {
       background: rgba(255,255,255,0.05);
@@ -1211,7 +1211,7 @@
       transform: translateY(-2px);
     }
     .person-card .pc-poster {
-      width: 60px; height: 85px; border-radius: 6px;
+      width: 100px; height: 150px; border-radius: 8px;
       overflow: hidden; flex-shrink: 0;
       background: rgba(255,255,255,0.03);
     }
@@ -1220,32 +1220,32 @@
     }
     .person-card .pc-info { flex: 1; min-width: 0; }
     .person-card .pc-title {
-      font-size: 0.9rem; font-weight: 700; margin-bottom: 4px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 6px;
+      line-height: 1.3;
     }
     .person-card .pc-detail {
-      font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 3px;
+      font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-bottom: 4px;
     }
-    .person-card .pc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .person-card .pc-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
     .person-card .pc-tag {
-      font-size: 0.6rem; padding: 2px 8px; border-radius: 4px;
+      font-size: 0.7rem; padding: 4px 10px; border-radius: 6px;
       background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5);
       font-weight: 600; letter-spacing: 0.5px;
     }
     .person-header {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
     .person-header h2 {
-      font-size: 1.5rem; font-weight: 800; margin-bottom: 6px;
+      font-size: 2rem; font-weight: 800; margin-bottom: 8px;
     }
     .person-header .person-stats {
-      font-size: 0.75rem; color: rgba(255,255,255,0.35);
+      font-size: 0.8rem; color: rgba(255,255,255,0.35);
       letter-spacing: 1px; text-transform: uppercase; font-weight: 600;
     }
     .person-results {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 16px;
     }
 
     /* ═══ IMDB RATING ═══ */
