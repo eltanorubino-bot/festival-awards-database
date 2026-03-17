@@ -300,7 +300,8 @@
     .fest-card.sansebastian::before { background: #2ecc71; }
     .fest-card.oscar::before { background: #f1c40f; }
     .fest-card.mardelplata::before { background: #3498db; }
-    .fest-icon { font-size: 2rem; margin-bottom: 12px; }
+    .fest-icon { font-size: 2rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; min-height: 60px; }
+    .fest-icon .fest-logo-img { max-width: 90px; max-height: 70px; }
     .fest-name { font-size: 0.82rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
     .fest-count { font-size: 0.75rem; color: rgba(255,255,255,0.25); }
 
@@ -1495,8 +1496,9 @@
       line-height: 1;
     }
     .section-hdr h3 .logo-img,
-    .section-hdr h3 .fest-logo-svg {
-      width: 48px; height: 48px;
+    .section-hdr h3 .fest-logo-svg,
+    .section-hdr h3 .fest-logo-img {
+      width: 48px; height: 48px; object-fit: contain; vertical-align: middle;
     }
     .year-title {
       font-size: 0.7rem;
@@ -1545,7 +1547,8 @@
     }
     .fest-tab:hover .fest-glow { opacity: 0.2; }
 
-    .ft-icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .ft-icon { font-size: 1.6rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; min-height: 50px; }
+    .ft-icon .fest-logo-img { max-width: 80px; max-height: 60px; }
     .ft-name {
       font-weight: 800;
       font-size: 1.1rem;
