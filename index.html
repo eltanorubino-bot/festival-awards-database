@@ -127,12 +127,11 @@
       color: #d4af37;
     }
     .hero-title span {
-      display: block;
-      font-size: 0.35em;
+      display: inline;
+      font-size: 0.22em;
       font-weight: 400;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.25);
       letter-spacing: 1px;
-      margin-top: 6px;
     }
     .hero-subtitle {
       display: none;
@@ -1661,12 +1660,45 @@
       .sr-title { font-size: 0.82rem; }
 
       .stats-bar { gap: 16px; font-size: 0.6rem; flex-wrap: wrap; }
+
+      /* Fix festivals grid on mobile */
+      .festivals-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+      }
+
+      /* Fix nav links overflow */
+      #navLinks { gap: 14px !important; flex-wrap: wrap; }
+      #navLinks a { font-size: 0.7rem !important; letter-spacing: 1.5px !important; }
+
+      /* Fix hero title size on mobile */
+      .hero-title { font-size: 3rem !important; }
+      .hero-title span { font-size: 0.28em !important; }
+
+      /* Fix hero tag */
+      .hero-tag { font-size: 0.85rem; }
+
+      /* Fix home search/stats */
+      .home-stats-bar { font-size: 0.7rem !important; gap: 16px !important; flex-wrap: wrap; }
+
+      /* Film row on mobile */
+      .film-row { padding: 12px; gap: 14px; }
+      .film-row-poster { width: 70px !important; height: 105px !important; }
+      .film-row-title { font-size: 1.05rem !important; }
+      .film-row-director { font-size: 0.85rem !important; }
+
+      /* Search hero padding */
+      .search-hero { padding: 30px 20px 24px; }
+      .alpha-nav { padding: 14px 20px; }
+      .film-list { padding: 20px 20px 60px; }
     }
 
     @media (max-width: 400px) {
       .page-content { padding: 12px 14px; }
       .years { grid-template-columns: repeat(3, 1fr); }
       .fest-tabs { grid-template-columns: 1fr 1fr; }
+      .hero-title { font-size: 2.5rem !important; }
+      .festivals-grid { grid-template-columns: repeat(2, 1fr) !important; }
     }
   </style>
 </head>
@@ -1676,7 +1708,7 @@
 
 <div class="page-content">
   <nav style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-    <div style="font-size:1rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#d4af37;cursor:pointer;" onclick="goBack('years')">Festival Awards Database <span style="font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:none;font-size:0.95rem;">by Fer Rubino</span></div>
+    <div style="cursor:pointer;" onclick="goBack('years')"></div>
     <div style="display:flex;gap:32px;align-items:center;" id="navLinks"></div>
   </nav>
 
@@ -1727,7 +1759,17 @@ function updateStats(){
   const festCount = Object.keys(festNames).length;
   const bar = document.getElementById('statsBar');
   const navLinks = document.getElementById('navLinks');
+  const searchBarEl = document.querySelector('.page-content > .search-bar');
   const v = state.view;
+
+  // On home page, hide global search+stats (they are duplicated inside the hero)
+  if (v === 'years') {
+    bar.style.display = 'none';
+    if (searchBarEl) searchBarEl.style.display = 'none';
+  } else {
+    bar.style.display = 'flex';
+    if (searchBarEl) searchBarEl.style.display = '';
+  }
 
   bar.innerHTML = `<span class="stat-link ${v==='allfilms'?'active':''}" onclick="showAllFilms()">📽️ <strong>${totalFilms}</strong> Films</span><span class="stat-link ${v==='years'?'active':''}" onclick="goBack('years')">📅 <strong>${Object.keys(DATA).length}</strong> Years</span><span class="stat-link ${v==='allfestivals'?'active':''}" onclick="showAllFestivals()">🎬 <strong>${festCount}</strong> Festivals</span>`;
 
@@ -2108,10 +2150,17 @@ function renderYears(app){
   const festivals = new Set();
   Object.values(DATA).forEach(fests => Object.keys(fests).forEach(f => festivals.add(f)));
 
+  // Move search bar and stats bar between hero and years
+  const searchBarEl = document.querySelector('.search-bar');
+  const statsBarEl = document.getElementById('statsBar');
+  if (searchBarEl) searchBarEl.style.display = 'none';
+  if (statsBarEl) statsBarEl.style.display = 'none';
+
   app.innerHTML = `
     <div class="hero-section">
       <div class="hero-tag">Every <span>Award.</span> Every <span>Year.</span></div>
-      <h1 class="hero-title">Festival Awards<br>Database<span>La base de datos más completa de premios de los principales festivales de cine del mundo.</span></h1>
+      <h1 class="hero-title">Festival Awards<br>Database <span style="font-size:0.22em;font-weight:400;color:rgba(255,255,255,0.25);letter-spacing:1px;">by Fer Rubino</span></h1>
+      <div style="font-size:0.95rem;font-weight:400;color:rgba(255,255,255,0.3);margin-bottom:6px;margin-top:2px;">La base de datos más completa de premios de los principales festivales de cine del mundo.</div>
       <div class="hero-stats">
         <div class="hero-stat" onclick="state.view='allfilms';render()">
           <div class="stat-num">${totalFilms}</div>
@@ -2127,6 +2176,14 @@ function renderYears(app){
         </div>
       </div>
     </div>
+
+    <div class="home-search-bar" style="margin-bottom:16px;">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:30px;overflow:hidden;max-width:100%;">
+        <input type="text" id="homeSearchInput" placeholder="Search films, directors, awards..." style="width:100%;padding:14px 24px;background:transparent;border:none;outline:none;color:#fff;font-size:0.95rem;font-family:inherit;">
+      </div>
+    </div>
+
+    <div class="home-stats-bar" style="display:flex;gap:28px;padding:14px 0;margin-bottom:18px;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.82rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);" id="homeStatsBar"></div>
 
     <div class="years-section">
       <div class="section-label">Browse by Year</div>
@@ -2150,6 +2207,28 @@ function renderYears(app){
         }).join('')}
       </div>
     </div>`;
+
+  // Wire up home search input
+  setTimeout(() => {
+    const homeSearch = document.getElementById('homeSearchInput');
+    if (homeSearch) {
+      homeSearch.addEventListener('input', function(e) {
+        document.getElementById('searchInput').value = e.target.value;
+        state.search = e.target.value;
+        render();
+      });
+    }
+    // Populate home stats bar
+    const hsb = document.getElementById('homeStatsBar');
+    if (hsb) {
+      const v = state.view;
+      hsb.innerHTML = `
+        <span class="stat-link ${v==='allfilms'?'active':''}" onclick="state.view='allfilms';render()" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.2s,transform 0.2s;">🎬 ${totalFilms} Films</span>
+        <span class="stat-link ${v==='years'?'active':''}" onclick="state.view='years';render()" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.2s,transform 0.2s;">📅 ${totalYears} Years</span>
+        <span class="stat-link" onclick="showAllFestivals()" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.2s,transform 0.2s;">🎬 ${festivals.size} Festivals</span>
+      `;
+    }
+  }, 0);
 }
 
 function renderYearScroller(currentYear) {
