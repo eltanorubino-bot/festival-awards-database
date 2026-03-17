@@ -139,6 +139,9 @@
     .hero-stats {
       display: flex;
       gap: 32px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
     .hero-stat {
       cursor: pointer;
@@ -215,7 +218,7 @@
 
     /* ═══ YEARS SECTION ═══ */
     .years-section {
-      padding: 16px 0 12px;
+      padding: 28px 0 12px;
       position: relative;
     }
     .years-section::before {
@@ -2405,21 +2408,21 @@ function renderYears(app){
       <div style="font-size:0.95rem;font-weight:400;color:rgba(255,255,255,0.3);margin-bottom:6px;margin-top:2px;">La base de datos más completa de premios de los principales festivales de cine del mundo.</div>
       <div class="hero-stats">
         <div class="hero-stat" onclick="state.view='allfilms';render()">
-          <div class="stat-num">${totalFilms}</div>
+          <div class="stat-num" data-count="${totalFilms}">0</div>
           <div class="stat-label">Films</div>
         </div>
         <div class="hero-stat" onclick="state.view='years';render()">
-          <div class="stat-num">${totalYears}</div>
+          <div class="stat-num" data-count="${totalYears}">0</div>
           <div class="stat-label">Years</div>
         </div>
         <div class="hero-stat" onclick="showAllFestivals()">
-          <div class="stat-num">${festivals.size}</div>
+          <div class="stat-num" data-count="${festivals.size}">0</div>
           <div class="stat-label">Festivals</div>
         </div>
       </div>
     </div>
 
-    <div class="home-search-bar autocomplete-wrap" style="margin-bottom:16px;">
+    <div class="home-search-bar autocomplete-wrap" style="margin-top:32px;margin-bottom:28px;">
       <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:30px;overflow:hidden;max-width:100%;position:relative;">
         <input type="text" id="homeSearchInput" placeholder="Search films, directors, awards..." autocomplete="off" style="width:100%;padding:14px 24px;background:transparent;border:none;outline:none;color:#fff;font-size:0.95rem;font-family:inherit;">
       </div>
@@ -2479,6 +2482,20 @@ function renderYears(app){
         <span class="stat-link" onclick="showAllFestivals()" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.2s,transform 0.2s;">🎬 ${festivals.size} Festivals</span>
       `;
     }
+    // Count-up animation
+    document.querySelectorAll('.stat-num[data-count]').forEach(el => {
+      const target = parseInt(el.dataset.count);
+      const duration = 1200;
+      const start = performance.now();
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
   }, 0);
 }
 
