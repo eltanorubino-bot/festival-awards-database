@@ -3090,9 +3090,9 @@ function openModal(titleOrIdx, year, fest){
         ${film.synopsis ? `<div class="modal-synopsis">${film.synopsis}</div>` : ''}
         ${film.cast ? `<div class="modal-cast-label">Cast</div><div class="modal-cast">${film.cast}</div>` : ''}
         ${film.title !== '(Sin competición por COVID-19)' ? `<div class="streaming-row" id="streaming-${year}-${fest}">
-          <div class="streaming-label">¿Dónde verla en Argentina?</div>
+          <div class="streaming-label">¿Dónde verla?</div>
           <div class="streaming-loading" id="streaming-content">Buscando disponibilidad...</div>
-          <div class="jw-credit">Datos de <a href="https://www.justwatch.com/ar/buscar?q=${encodeURIComponent(film.title)}" target="_blank">JustWatch</a></div>
+          <div class="jw-credit" style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:6px;">Powered by <a href="https://www.themoviedb.org/" target="_blank" style="color:rgba(255,255,255,0.3);">TMDB</a> & <a href="https://www.justwatch.com/" target="_blank" style="color:rgba(255,255,255,0.3);">JustWatch</a></div>
         </div>` : ''}
         <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end;">
           <a href="mailto:eltanorubino@gmail.com?subject=${encodeURIComponent('Report: ' + film.title + ' (' + year + ') - ' + festNames[fest])}&body=${encodeURIComponent('Film: ' + film.title + '\\nYear: ' + year + '\\nFestival: ' + festNames[fest] + '\\nAward: ' + film.award + '\\n\\nDescribe the error:\\n')}"
@@ -3124,190 +3124,162 @@ render();
 
 
 
-// ═══ JUSTWATCH STREAMING FETCH ═══
-const JW_CACHE_KEY = 'festival_db_jw_v2';
-// Clear old cache versions and null-only caches
-try { localStorage.removeItem('festival_db_jw_v1'); } catch(e) {}
-const jwCacheRaw = JSON.parse(localStorage.getItem(JW_CACHE_KEY) || '{}');
-// Remove null entries from cache so they get retried
-const jwCache = {};
-Object.keys(jwCacheRaw).forEach(k => { if (jwCacheRaw[k] !== null) jwCache[k] = jwCacheRaw[k]; });
-localStorage.setItem(JW_CACHE_KEY, JSON.stringify(jwCache));
+// ═══ STREAMING AVAILABILITY via TMDB Watch Providers ═══
+const STREAM_CACHE_KEY = 'festival_db_stream_v3';
+try { localStorage.removeItem('festival_db_jw_v1'); localStorage.removeItem('festival_db_jw_v2'); } catch(e) {}
+const streamCacheRaw = JSON.parse(localStorage.getItem(STREAM_CACHE_KEY) || '{}');
+const streamCache = {};
+Object.keys(streamCacheRaw).forEach(k => { if (streamCacheRaw[k] !== null) streamCache[k] = streamCacheRaw[k]; });
 
-const CORS_PROXIES = [
-  'https://corsproxy.io/?',
-  'https://api.codetabs.com/v1/proxy?quest=',
-  'https://api.allorigins.win/raw?url=',
-];
+const TMDB_STREAM_KEY = 'c7e6828ca5effc34d77ea8aa302a9b61';
 
-async function fetchWithCorsProxy(url, options) {
-  // Try direct first
-  try {
-    const res = await fetch(url, {...options, signal: AbortSignal.timeout(5000)});
-    if (res.ok) return res;
-  } catch(e) {}
-
-  // Try each proxy
-  for (const proxy of CORS_PROXIES) {
-    try {
-      const proxyUrl = proxy + encodeURIComponent(url);
-      const res = await fetch(proxyUrl, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: options.body,
-        signal: AbortSignal.timeout(10000)
-      });
-      if (res.ok) {
-        // Verify it's valid JSON (some proxies return HTML errors)
-        const clone = res.clone();
-        try { await clone.json(); return res; } catch(e) { continue; }
-      }
-    } catch(e) {}
-  }
-
-  return null;
-}
+// Platform deep-link templates (best effort — opens search on the platform)
+const platformLinks = {
+  'Netflix': (title) => `https://www.netflix.com/search?q=${encodeURIComponent(title)}`,
+  'Amazon Prime Video': (title) => `https://www.primevideo.com/search?phrase=${encodeURIComponent(title)}`,
+  'Disney Plus': (title) => `https://www.disneyplus.com/search?q=${encodeURIComponent(title)}`,
+  'HBO Max': (title) => `https://play.max.com/search?q=${encodeURIComponent(title)}`,
+  'Max': (title) => `https://play.max.com/search?q=${encodeURIComponent(title)}`,
+  'Apple TV Plus': (title) => `https://tv.apple.com/search?term=${encodeURIComponent(title)}`,
+  'Mubi': (title) => `https://mubi.com/search?query=${encodeURIComponent(title)}`,
+  'MUBI': (title) => `https://mubi.com/search?query=${encodeURIComponent(title)}`,
+  'Paramount Plus': (title) => `https://www.paramountplus.com/search/?q=${encodeURIComponent(title)}`,
+  'Crunchyroll': (title) => `https://www.crunchyroll.com/search?q=${encodeURIComponent(title)}`,
+  'Star Plus': (title) => `https://www.starplus.com/search?q=${encodeURIComponent(title)}`,
+};
 
 async function fetchStreamingInfo(title, year) {
   const cacheKey = (title + '|' + year).toLowerCase();
-  if (jwCache[cacheKey] !== undefined) return jwCache[cacheKey];
-  
-  const query = `query GetSearchTitles($searchTitlesFilter: TitleFilter!, $country: Country!, $language: Language!, $first: Int!, $filter: OfferFilter!) {
-    popularTitles(country: $country, filter: $searchTitlesFilter, first: $first, sortBy: POPULAR, sortRandomSeed: 0) {
-      edges {
-        node {
-          id
-          objectType
-          content(country: $country, language: $language) {
-            title
-            originalReleaseYear
-            fullPath
-          }
-          offers(country: $country, platform: WEB, filter: $filter) {
-            monetizationType
-            standardWebURL
-            package {
-              packageId
-              clearName
-              icon(profile: S100, format: PNG)
-            }
-          }
-        }
-      }
-    }
-  }`;
-  
-  const variables = {
-    searchTitlesFilter: { searchQuery: title },
-    country: "AR",
-    language: "es",
-    first: 5,
-    filter: { bestOnly: true }
-  };
-  
+  if (streamCache[cacheKey] !== undefined) return streamCache[cacheKey];
+
   try {
-    const res = await fetchWithCorsProxy('https://apis.justwatch.com/graphql', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ query, variables })
-    });
-    
-    if (!res) throw new Error('No proxy worked');
-    
-    const data = await res.json();
-    const edges = data?.data?.popularTitles?.edges || [];
-    
-    // Find best match
-    let match = null;
-    const titleLower = title.toLowerCase();
+    // Step 1: Search for the movie on TMDB
+    const searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_STREAM_KEY}&query=${encodeURIComponent(title)}&year=${year}&language=es`;
+    const searchRes = await fetch(searchUrl, {signal: AbortSignal.timeout(6000)});
+    if (!searchRes.ok) throw new Error('TMDB search failed');
+    const searchData = await searchRes.json();
+
+    if (!searchData.results || searchData.results.length === 0) {
+      // Try without year
+      const searchUrl2 = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_STREAM_KEY}&query=${encodeURIComponent(title)}&language=es`;
+      const searchRes2 = await fetch(searchUrl2, {signal: AbortSignal.timeout(6000)});
+      const searchData2 = await searchRes2.json();
+      if (!searchData2.results || searchData2.results.length === 0) return null;
+      searchData.results = searchData2.results;
+    }
+
+    // Find best match by year proximity
     const yearNum = parseInt(year);
-    
-    for (const edge of edges) {
-      const node = edge.node;
-      const ct = node.content;
-      if (!ct) continue;
-      const nodeTitle = (ct.title || '').toLowerCase();
-      const nodeYear = ct.originalReleaseYear;
-      
-      // Exact title + year match
-      if (nodeTitle === titleLower && Math.abs(nodeYear - yearNum) <= 1) {
-        match = node;
-        break;
-      }
-      // Close title match
-      if ((nodeTitle.includes(titleLower) || titleLower.includes(nodeTitle)) && Math.abs(nodeYear - yearNum) <= 1) {
-        match = node;
+    let bestMatch = searchData.results[0];
+    for (const r of searchData.results) {
+      const ry = parseInt((r.release_date || '').substring(0, 4));
+      const by = parseInt((bestMatch.release_date || '').substring(0, 4));
+      if (Math.abs(ry - yearNum) < Math.abs(by - yearNum)) bestMatch = r;
+    }
+
+    const movieId = bestMatch.id;
+
+    // Step 2: Get watch providers
+    const provUrl = `https://api.themoviedb.org/3/movie/${movieId}/watch/providers?api_key=${TMDB_STREAM_KEY}`;
+    const provRes = await fetch(provUrl, {signal: AbortSignal.timeout(6000)});
+    if (!provRes.ok) throw new Error('TMDB providers failed');
+    const provData = await provRes.json();
+
+    // Try AR (Argentina) first, then US, then any available
+    const regions = ['AR', 'US', 'ES', 'MX', 'GB'];
+    let regionData = null;
+    let regionUsed = '';
+    for (const r of regions) {
+      if (provData.results && provData.results[r]) {
+        regionData = provData.results[r];
+        regionUsed = r;
         break;
       }
     }
-    
-    // Fallback: first MOVIE result
-    if (!match) {
-      for (const edge of edges) {
-        if (edge.node.objectType === 'MOVIE') {
-          match = edge.node;
-          break;
-        }
+
+    if (!regionData) {
+      // Try first available region
+      const keys = Object.keys(provData.results || {});
+      if (keys.length > 0) {
+        regionData = provData.results[keys[0]];
+        regionUsed = keys[0];
       }
     }
-    
-    if (match && match.offers && match.offers.length > 0) {
-      // Group by monetization type, deduplicate by package
-      const seen = new Set();
-      const offers = [];
-      for (const o of match.offers) {
-        const key = o.package.packageId + '_' + o.monetizationType;
-        if (seen.has(key)) continue;
-        seen.add(key);
+
+    if (!regionData) return null;
+
+    // Build offers list
+    const offers = [];
+    const seen = new Set();
+    const tmdbLink = regionData.link || `https://www.themoviedb.org/movie/${movieId}/watch`;
+
+    const processOffers = (list, type) => {
+      if (!list) return;
+      for (const p of list) {
+        if (seen.has(p.provider_id)) continue;
+        seen.add(p.provider_id);
+        const linkFn = platformLinks[p.provider_name];
         offers.push({
-          name: o.package.clearName,
-          icon: o.package.icon ? 'https://images.justwatch.com' + o.package.icon : '',
-          type: o.monetizationType,
-          url: o.standardWebURL || ''
+          name: p.provider_name,
+          icon: p.logo_path ? `https://image.tmdb.org/t/p/original${p.logo_path}` : '',
+          type: type,
+          url: linkFn ? linkFn(title) : tmdbLink
         });
       }
-      
-      // Sort: FLATRATE first, then RENT, then BUY
-      const order = {FLATRATE: 0, FREE: 0, ADS: 1, RENT: 2, BUY: 3};
-      offers.sort((a, b) => (order[a.type] || 9) - (order[b.type] || 9));
-      
-      jwCache[cacheKey] = { offers, path: match.content?.fullPath || '' };
-      localStorage.setItem(JW_CACHE_KEY, JSON.stringify(jwCache));
-      return jwCache[cacheKey];
-    }
-    
-    // Don't cache null results permanently — allows retry next time
-    return null;
+    };
+
+    processOffers(regionData.flatrate, 'FLATRATE');
+    processOffers(regionData.free, 'FREE');
+    processOffers(regionData.ads, 'ADS');
+    processOffers(regionData.rent, 'RENT');
+    processOffers(regionData.buy, 'BUY');
+
+    const result = { offers, tmdbLink, region: regionUsed, movieId };
+    streamCache[cacheKey] = result;
+    localStorage.setItem(STREAM_CACHE_KEY, JSON.stringify(streamCache));
+    return result;
 
   } catch(e) {
-    console.log('[JW] Error:', e.message);
+    console.log('[TMDB Stream] Error:', e.message);
     return null;
   }
 }
 
 function renderStreamingOffers(data) {
   if (!data || !data.offers || data.offers.length === 0) {
-    return '<div style="font-size:0.78rem;color:rgba(255,255,255,0.3);">No se encontró disponibilidad. <a href="https://www.justwatch.com/ar" target="_blank" style="color:#d4af37;text-decoration:none;">Buscar en JustWatch →</a></div>';
+    const link = data && data.tmdbLink ? data.tmdbLink : 'https://www.themoviedb.org/';
+    return '<div style="font-size:0.78rem;color:rgba(255,255,255,0.3);">No se encontró disponibilidad en streaming. <a href="' + link + '" target="_blank" style="color:#d4af37;text-decoration:none;">Ver en TMDB →</a></div>';
   }
-  
+
   const typeLabels = {FLATRATE: 'Stream', FREE: 'Gratis', ADS: 'Con Ads', RENT: 'Alquilar', BUY: 'Comprar'};
   const typeClass = {FLATRATE: 'flat', FREE: 'flat', ADS: 'flat', RENT: 'rent', BUY: 'buy'};
-  
-  return '<div class="streaming-list">' + data.offers.map(o => 
+  const regionNames = {AR:'Argentina', US:'Estados Unidos', ES:'España', MX:'México', GB:'Reino Unido'};
+
+  let html = '';
+  if (data.region && data.region !== 'AR') {
+    html += `<div style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-bottom:6px;">Disponibilidad en ${regionNames[data.region] || data.region} (no encontrada en Argentina)</div>`;
+  }
+
+  html += '<div class="streaming-list">' + data.offers.map(o =>
     `<a class="streaming-chip" href="${o.url || '#'}" target="_blank" rel="noopener">
-      ${o.icon ? `<img src="${o.icon}" alt="${o.name}" onerror="this.style.display='none'">` : ''}
+      ${o.icon ? `<img src="${o.icon}" alt="${o.name}" style="width:24px;height:24px;border-radius:4px;" onerror="this.style.display='none'">` : ''}
       <span>${o.name}</span>
       <span class="chip-type ${typeClass[o.type] || ''}">${typeLabels[o.type] || o.type}</span>
     </a>`
   ).join('') + '</div>';
+
+  if (data.tmdbLink) {
+    html += `<div style="margin-top:6px;"><a href="${data.tmdbLink}" target="_blank" style="font-size:0.7rem;color:rgba(255,255,255,0.3);text-decoration:none;">Ver todas las opciones en TMDB →</a></div>`;
+  }
+
+  return html;
 }
 
-// Hook into openModal to fetch streaming data
+// Hook into openModal to fetch streaming data via TMDB
 const _origOpenModal = openModal;
 openModal = function(titleOrIdx, year, fest) {
   _origOpenModal(titleOrIdx, year, fest);
-  
-  // Get the film title
+
   const awards = DATA[year][fest];
   let film;
   if (typeof titleOrIdx === 'number') {
@@ -3316,19 +3288,17 @@ openModal = function(titleOrIdx, year, fest) {
     film = awards.find(a => a.title === titleOrIdx);
   }
   if (!film || film.title === '(Sin competición por COVID-19)') return;
-  
+
   const contentEl = document.getElementById('streaming-content');
   if (!contentEl) return;
-  
-  // Check cache first
+
   const cacheKey = (film.title + '|' + year).toLowerCase();
-  if (jwCache[cacheKey] !== undefined) {
-    contentEl.innerHTML = renderStreamingOffers(jwCache[cacheKey]);
+  if (streamCache[cacheKey] !== undefined) {
+    contentEl.innerHTML = renderStreamingOffers(streamCache[cacheKey]);
     return;
   }
-  
-  // Fetch async
-  contentEl.innerHTML = '<div class="streaming-loading">Buscando en JustWatch Argentina...</div>';
+
+  contentEl.innerHTML = '<div class="streaming-loading">Buscando disponibilidad...</div>';
   fetchStreamingInfo(film.title, year).then(data => {
     const el = document.getElementById('streaming-content');
     if (el) el.innerHTML = renderStreamingOffers(data);
